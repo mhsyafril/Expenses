@@ -17,7 +17,7 @@
     --bg:#F2EEE1;--card:#FBF8EF;--card2:#F4EFE0;--line:#E2DBC4;--line2:#CFC6A8;
     --ink:#22251F;--muted:#7C7762;--faint:#A39C84;
     --teal:#1F5C56;--teal-d:#143E39;--clay:#B5613A;--gold:#C7913B;--violet:#7C5BAE;--blue:#3F7DB0;
-    --in:#2E7D5B;--out:#B5613A;--neg:#BC4B3C;
+    --in:#2E7D5B;--out:#B5613A;--neg:#BC4B3C;--tf:#3F7DB0;
   }
   *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
   html,body{background:var(--bg);color:var(--ink);font-family:'Figtree',system-ui,sans-serif;overscroll-behavior:none}
@@ -29,7 +29,8 @@
 
   header{padding:18px 0 4px;display:flex;align-items:center;justify-content:space-between}
   .brand{display:flex;align-items:center;gap:9px}
-  .mk{width:30px;height:30px;border-radius:9px;background:var(--teal);color:#fff;display:flex;align-items:center;justify-content:center;font-family:'Bricolage Grotesque';font-weight:800;font-size:13px}
+  .mk{width:32px;height:32px;border-radius:10px;background:var(--teal);color:#fff;display:flex;align-items:center;justify-content:center;font-family:'Bricolage Grotesque';font-weight:800;font-size:14px;cursor:pointer;border:2px solid transparent;transition:.2s}
+  .mk:active{transform:scale(.9)}
   .brand h1{font-family:'Bricolage Grotesque';font-weight:800;font-size:19px;letter-spacing:-.3px}
   .pill{font-family:'Spline Sans Mono';font-size:9.5px;letter-spacing:.08em;color:var(--faint);padding:5px 9px;border:1px solid var(--line);border-radius:20px;background:var(--card)}
   .pill.on{color:var(--in);border-color:rgba(46,125,91,.4)}
@@ -44,7 +45,7 @@
   .grid2{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-top:12px}
   .card{background:var(--card);border:1px solid var(--line);border-radius:15px;padding:14px}
   .card .k{font-family:'Spline Sans Mono';font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
-  .card .v{font-family:'Spline Sans Mono';font-weight:600;font-size:19px;margin-top:6px}
+  .card .v{font-family:'Spline Sans Mono';font-weight:600;font-size:19px;margin-top:6px;word-break:break-all}
   .card .s{font-size:11px;color:var(--faint);margin-top:3px}
 
   .panel{background:var(--card);border:1px solid var(--line);border-radius:16px;margin-top:14px;overflow:hidden}
@@ -60,7 +61,7 @@
   .sum-top{display:flex;justify-content:space-between;align-items:flex-end;padding:14px 15px 10px}
   .sum-top .bal{font-family:'Spline Sans Mono';font-weight:600;font-size:23px}
   .io{display:flex;gap:13px;font-family:'Spline Sans Mono';font-size:12px}
-  .io .i{color:var(--in)} .io .o{color:var(--out)}
+  .io .i{color:var(--in)} .io .o{color:var(--out)} .io .tr{color:var(--tf)}
 
   .tx{display:flex;align-items:center;gap:11px;padding:11px 15px;border-bottom:1px solid var(--line)}
   .tx:last-child{border-bottom:none}
@@ -72,7 +73,7 @@
   .tx .rt{text-align:right;font-family:'Spline Sans Mono';white-space:nowrap}
   .tx .rt .a{font-size:14.5px;font-weight:600}
   .tx .rt .b{font-size:10px;color:var(--faint);margin-top:2px}
-  .amt-in{color:var(--in)} .amt-out{color:var(--out)}
+  .amt-in{color:var(--in)} .amt-out{color:var(--out)} .amt-tf{color:var(--tf)}
   .empty{padding:28px 18px;text-align:center;color:var(--muted);font-size:13px;line-height:1.65}
 
   .legend{display:flex;flex-wrap:wrap;gap:9px 14px;padding:12px 16px 16px}
@@ -95,9 +96,20 @@
   .row input{padding:9px 10px;font-size:14px;width:100%}
   .row .f1{flex:1}.row .vv{width:118px;text-align:right;font-family:'Spline Sans Mono'}
   .row .ap{width:66px;font-size:11px;font-family:'Spline Sans Mono';text-align:center;color:var(--muted)}
-  .row .rm{background:none;border:none;color:var(--faint);font-size:17px;width:auto;padding:2px}
+  .row .rm{background:none;border:none;color:var(--faint);font-size:17px;width:auto;padding:2px;cursor:pointer}
   .tot{display:flex;justify-content:space-between;padding:12px 15px;font-family:'Spline Sans Mono';font-weight:600;font-size:13.5px;background:var(--card2)}
-  .addmini{width:100%;padding:11px;border:none;border-top:1px dashed var(--line2);background:transparent;color:var(--muted);font-family:'Spline Sans Mono';font-size:11px}
+  .addmini{width:100%;padding:11px;border:none;border-top:1px dashed var(--line2);background:transparent;color:var(--muted);font-family:'Spline Sans Mono';font-size:11px;cursor:pointer;}
+  .addmini:active{background:var(--line)}
+
+  /* Enhanced Cash & Accounts Cards */
+  .acc-card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; margin-bottom: 10px; display:flex; flex-direction:column; gap:10px; box-shadow: 0 1px 3px rgba(0,0,0,0.02);}
+  .acc-row1 { display:flex; justify-content:space-between; align-items:center; gap:8px; }
+  .acc-row2 { display:flex; justify-content:space-between; align-items:center; gap:8px; }
+  .acc-name { font-weight:600; font-size:15px; border:none; background:transparent; padding:0; outline:none; color:var(--ink); width:100%;font-family:'Figtree'; border-bottom:1px solid transparent; transition:.2s}
+  .acc-name:focus { border-bottom:1px solid var(--teal); }
+  .acc-ccy { background:var(--card2); border:1px solid var(--line); border-radius:8px; font-size:11.5px; padding:4px 8px; color:var(--muted); outline:none; font-family:'Spline Sans Mono'; font-weight:600}
+  .acc-amt { font-family:'Spline Sans Mono'; font-size:19px; font-weight:600; text-align:right; border:none; background:transparent; padding:0; width:100%; outline:none; color:var(--ink); border-bottom:1px solid transparent; transition:.2s}
+  .acc-amt:focus { border-bottom:1px solid var(--teal); }
 
   input,select{background:var(--card);border:1px solid var(--line2);color:var(--ink);padding:12px;border-radius:11px;font-size:16px;font-family:'Figtree';width:100%}
   input:focus,select:focus{outline:none;border-color:var(--teal)}
@@ -106,7 +118,7 @@
   .nav button{flex:1;background:none;border:none;display:flex;flex-direction:column;align-items:center;gap:3px;padding:7px 0;color:var(--faint);font-family:'Spline Sans Mono';font-size:9.5px;letter-spacing:.06em}
   .nav button.act{color:var(--teal)}
   .nav .ic{font-size:18px;line-height:1}
-  .fab{position:fixed;right:18px;bottom:calc(78px + env(safe-area-inset-bottom));z-index:41;width:56px;height:56px;border-radius:18px;background:var(--teal);color:#fff;border:none;font-size:26px;box-shadow:0 8px 20px rgba(31,92,86,.4);display:flex;align-items:center;justify-content:center}
+  .fab{position:fixed;right:18px;bottom:calc(78px + env(safe-area-inset-bottom));z-index:41;width:56px;height:56px;border-radius:18px;background:var(--teal);color:#fff;border:none;font-size:26px;box-shadow:0 8px 20px rgba(31,92,86,.4);display:flex;align-items:center;justify-content:center;cursor:pointer}
   .fab:active{transform:scale(.94)}
 
   .ov{position:fixed;inset:0;background:rgba(20,22,18,.45);z-index:50;display:none;align-items:flex-end;justify-content:center}
@@ -117,9 +129,9 @@
   .seg{display:flex;background:var(--card2);border:1px solid var(--line);border-radius:12px;padding:4px;margin-bottom:14px}
   .seg button{flex:1;padding:11px;border:none;background:transparent;border-radius:9px;font-family:'Figtree';font-weight:600;font-size:14px;color:var(--muted)}
   .seg button.act{background:var(--card);box-shadow:0 1px 3px rgba(0,0,0,.06)}
-  .seg button.act.outc{color:var(--out)}.seg button.act.inc{color:var(--in)}
+  .seg button.act.outc{color:var(--out)}.seg button.act.inc{color:var(--in)}.seg button.act.tfc{color:var(--tf)}
   .field{margin-bottom:13px}
-  .field label{display:block;font-family:'Spline Sans Mono';font-size:9.5px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+  .field label{display:flex;justify-content:space-between;font-family:'Spline Sans Mono';font-size:9.5px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
   .big{font-family:'Spline Sans Mono';font-weight:600;font-size:24px;text-align:center}
   .chips{display:flex;flex-wrap:wrap;gap:7px}
   .chip{padding:9px 13px;border:1px solid var(--line2);background:var(--card);border-radius:20px;font-size:13px;color:var(--ink)}
@@ -134,10 +146,11 @@
   .install b{color:var(--ink)} .install .x{margin-left:auto;background:none;border:none;color:var(--faint);font-size:17px;width:auto;padding:0 2px}
   .gauge-wrap{padding:16px}
   .frow{display:flex;gap:9px;margin-top:14px}
-  .fb{flex:1;padding:12px;border:1px solid var(--line);background:var(--card);border-radius:11px;font-family:'Figtree';font-weight:600;font-size:12.5px;color:var(--ink)}
+  .fb{flex:1;padding:12px;border:1px solid var(--line);background:var(--card);border-radius:11px;font-family:'Figtree';font-weight:600;font-size:12.5px;color:var(--ink);cursor:pointer;}
+  .fb:active{background:var(--line2)}
   details{margin-top:8px}summary{list-style:none;color:var(--muted);font-family:'Spline Sans Mono';font-size:10.5px;letter-spacing:.1em;padding:8px;text-align:center}summary::-webkit-details-marker{display:none}
   .note{font-size:10.5px;color:var(--faint);line-height:1.6;margin:14px 0 4px;padding:0 4px;text-align:center}
-  .toast{position:fixed;left:50%;bottom:calc(90px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(14px);background:var(--ink);color:#F2EEE1;padding:10px 18px;border-radius:24px;font-size:13px;opacity:0;pointer-events:none;transition:.3s;z-index:60}
+  .toast{position:fixed;left:50%;bottom:calc(90px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(14px);background:var(--ink);color:#F2EEE1;padding:10px 18px;border-radius:24px;font-size:13px;opacity:0;pointer-events:none;transition:.3s;z-index:60;box-shadow:0 4px 12px rgba(0,0,0,0.15)}
   .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
   .loading{padding:90px 20px;text-align:center;color:var(--muted);font-family:'Spline Sans Mono';font-size:13px;letter-spacing:.1em}
   svg{display:block}
@@ -151,19 +164,43 @@
 <div class="toast" id="toast"></div>
 
 <script>
-/* ===== storage: window.storage inside Claude, localStorage on a real phone ===== */
+/* ===== storage: Google Sheets API & localStorage Backup ===== */
 const KEY="buku-kas-app-v1";
-const STORE=(()=>{
-  if(typeof window!=="undefined"&&window.storage&&typeof window.storage.get==="function")
-    return {get:async k=>{try{const r=await window.storage.get(k,false);return r&&r.value?r.value:null}catch(e){return null}},
-            set:async (k,v)=>{try{await window.storage.set(k,v,false)}catch(e){}}};
-  return {get:async k=>{try{return localStorage.getItem(k)}catch(e){return null}},
-          set:async (k,v)=>{try{localStorage.setItem(k,v)}catch(e){}}};
-})();
+const API_URL = "https://script.google.com/macros/s/AKfycbwALUTZ_b5PuBRmRYZzFo27wGJNBV5lMEKDlgnOA19Efv-bE9xvFGzg6tfLWs-FvilR/exec"; 
+
+const STORE = {
+  get: async (k) => {
+    try {
+      const res = await fetch(API_URL);
+      const text = await res.text();
+      // Verifikasi jika response adalah JSON yang valid
+      return text && text.length > 2 ? text : null;
+    } catch(e) {
+      console.error("Gagal memuat dari cloud, memuat dari local:", e);
+      return localStorage.getItem(k);
+    }
+  },
+  
+  set: async (k, v) => {
+    try {
+      await fetch(API_URL, {
+        method: "POST",
+        body: v,
+        headers: { "Content-Type": "text/plain" } 
+      });
+      // Selalu update localStorage sebagai fallback
+      localStorage.setItem(k, v);
+    } catch(e) {
+      console.error("Gagal menyimpan ke cloud, menyimpan di local:", e);
+      localStorage.setItem(k, v);
+    }
+  }
+};
 
 const OUT_CATS=["Groceries","Eating-Out","Shopping","Utilities","Saham","Other"];
 const IN_CATS=["Income","Saham","Other"];
-const COL={"Groceries":"#1F5C56","Eating-Out":"#B5613A","Shopping":"#7C5BAE","Utilities":"#C7913B","Saham":"#3F7DB0","Other":"#8A8569","Income":"#2E7D5B"};
+const TF_CATS=["Transfer"];
+const COL={"Groceries":"#1F5C56","Eating-Out":"#B5613A","Shopping":"#7C5BAE","Utilities":"#C7913B","Saham":"#3F7DB0","Other":"#8A8569","Income":"#2E7D5B","Transfer":"#3F7DB0"};
 const QUICK=[
   {l:"Tsuruha",d:"Tsuruha",c:"Groceries",dir:"out"},{l:"Morinaga",d:"Morinaga",c:"Groceries",dir:"out"},
   {l:"Onigiri",d:"Onigiri",c:"Eating-Out",dir:"out"},{l:"Apartemen",d:"Apartemen",c:"Utilities",dir:"out",a:26000},
@@ -171,38 +208,41 @@ const QUICK=[
   {l:"Listrik",d:"Listrik",c:"Utilities",dir:"out"},{l:"iPhone",d:"iPhone",c:"Utilities",dir:"out",a:5272},
   {l:"Data",d:"Data Internet",c:"Utilities",dir:"out",a:1000},{l:"Asuransi",d:"Asuransi kesehatan",c:"Utilities",dir:"out",a:2500},
   {l:"Mext ↓",d:"Mext",c:"Income",dir:"in",a:145000},{l:"Baito ↓",d:"Baito",c:"Income",dir:"in"},
+  {l:"Tarik ATM",d:"Tarik tunai Yuchou",c:"Transfer",dir:"tf"},{l:"Topup Paypay",d:"Isi Paypay",c:"Transfer",dir:"tf"},
 ];
 const MK=(y,m)=>y+"-"+String(m).padStart(2,"0");
 const u=()=>Math.random().toString(36).slice(2,9);
 
+// Data sesuai CSV yang diunggah: 18 Mei 2026
 function DEFAULTS(){
-  const fixed=m=>[
-    {id:u(),date:m+"-01",desc:"Mext (scholarship)",amt:145000,dir:"in",cat:"Income"},
-    {id:u(),date:m+"-05",desc:"Apartemen",amt:26000,dir:"out",cat:"Utilities"},
-    {id:u(),date:m+"-05",desc:"Asuransi kesehatan",amt:2500,dir:"out",cat:"Utilities"},
-    {id:u(),date:m+"-08",desc:"Gas",amt:5000,dir:"out",cat:"Utilities"},
-    {id:u(),date:m+"-08",desc:"Listrik",amt:3000,dir:"out",cat:"Utilities"},
-    {id:u(),date:m+"-08",desc:"Air",amt:4950,dir:"out",cat:"Utilities"},
-    {id:u(),date:m+"-10",desc:"iPhone + Data",amt:6272,dir:"out",cat:"Utilities"},
-  ];
+  const m = "2026-05";
+  const aY = u(), aB = u(), aI = u(), aS = u(), aD = u(), aP = u(), aJ = u();
   return {
-    kurs:106.71, cur:MK(2026,5), tab:"home", showInstall:true,
-    months:{ "2026-05":{start:11027,tx:[
-      ...fixed("2026-05"),
-      {id:u(),date:"2026-05-15",desc:"Baito (part-time)",amt:50000,dir:"in",cat:"Income"},
-      {id:u(),date:"2026-05-20",desc:"Bayar JCB (credit card)",amt:43895,dir:"out",cat:"Other"},
-    ]} },
+    kurs: 111.75, viewCcy: "JPY", cur: m, tab: "home", showInstall: true, lastOutAccId: null,
+    months:{
+      "2026-05":{
+        start: 11027,
+        tx:[
+          {id:u(),date:"2026-05-18",desc:"Transfer (Dari CSV)",amt:0,tfOut:0,tfFee:0,tfIn:0,dir:"tf",cat:"Transfer",accId:aY,accId2:aD},
+          {id:u(),date:"2026-05-18",desc:"Hamasushi",amt:1023,rawAmt:1023,dir:"out",cat:"Eating-Out",accId:aD},
+          {id:u(),date:"2026-05-18",desc:"Transfer (Dari CSV)",amt:0,tfOut:0,tfFee:0,tfIn:0,dir:"tf",cat:"Transfer",accId:aY,accId2:aP},
+        ]
+      }
+    },
     accounts:[
-      {id:u(),name:"Yuchou",app:"JP bank",ccy:"JPY",amount:11027},
-      {id:u(),name:"BNI",app:"ID bank",ccy:"IDR",amount:450000},
-      {id:u(),name:"Dompet",app:"Cash",ccy:"JPY",amount:0},
-      {id:u(),name:"Paypay",app:"Paypay",ccy:"JPY",amount:0},
-      {id:u(),name:"JCB",app:"Credit card",ccy:"JPY",amount:-43895},
+      {id:aY,name:"Yuchou",app:"JP bank",ccy:"JPY",amount:9027},
+      {id:aB,name:"BNI",app:"ID bank",ccy:"IDR",amount:459642},
+      {id:aI,name:"IPOT",app:"Broker",ccy:"IDR",amount:35116},
+      {id:aS,name:"Stockbit",app:"Broker",ccy:"IDR",amount:33250},
+      {id:aD,name:"Dompet",app:"Cash",ccy:"JPY",amount:5414},
+      {id:aP,name:"Paypay",app:"Paypay",ccy:"JPY",amount:179},
+      {id:aJ,name:"JCB",app:"Credit card",ccy:"JPY",amount:-43895},
     ],
     holdings:[
-      {id:u(),broker:"IPOT",ticker:"BRMS",lots:723,avg:900,last:900},
-      {id:u(),broker:"IPOT",ticker:"CGAS",lots:2994,avg:176,last:176},
-      {id:u(),broker:"Stockbit",ticker:"BRMS",lots:396,avg:900,last:900},
+      {id:u(),broker:"IPOT",ticker:"BRMS",lots:723,avg:720,last:720},
+      {id:u(),broker:"IPOT",ticker:"CGAS",lots:2994,avg:179,last:179},
+      {id:u(),broker:"Stockbit",ticker:"BRMS",lots:396,avg:720,last:720},
+      {id:u(),broker:"IPOT",ticker:"AADI",lots:0.34,avg:8950,last:8950},
     ],
     goalEmergency:300000,
     snapshots:[],
@@ -215,6 +255,15 @@ const nf=n=>Math.round(n).toLocaleString("en-US");
 const k1=n=>{n=Math.round(n);return Math.abs(n)>=1e6?(n/1e6).toFixed(2)+"M":Math.abs(n)>=1000?(n/1000).toFixed(0)+"k":""+n;};
 const yen=n=>"¥"+nf(n);
 const rp=n=>"Rp"+nf(n);
+
+// DYNAMIC FORMATTER (YEN ↔ IDR)
+const disp=(j,prefix=true)=>{
+  const isIDR = (S.viewCcy==="IDR");
+  const v = isIDR ? j*(S.kurs||1) : j;
+  if(prefix) return isIDR ? rp(v) : yen(v);
+  return nf(v);
+};
+
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const monthLabel=k=>{const[y,m]=k.split("-");return new Date(y,m-1,1).toLocaleString("en-US",{month:"long"})+" "+y;};
 const monthShort=k=>{const[y,m]=k.split("-");return new Date(y,m-1,1).toLocaleString("en-US",{month:"short"});};
@@ -223,7 +272,11 @@ function elapsed(k){const n=new Date(),c=MK(n.getFullYear(),n.getMonth()+1);retu
 function MO(k){k=k||S.cur;if(!S.months[k])S.months[k]={start:0,tx:[]};return S.months[k];}
 function ord(k){return MO(k).tx.slice().sort((a,b)=>a.date<b.date?-1:a.date>b.date?1:0);}
 function calc(k){const m=MO(k);let bal=m.start||0,inT=0,outT=0;const cats={};
-  ord(k).forEach(t=>{if(t.dir==="in"){bal+=t.amt;inT+=t.amt;}else{bal-=t.amt;outT+=t.amt;cats[t.cat]=(cats[t.cat]||0)+t.amt;}t._bal=bal;});
+  ord(k).forEach(t=>{
+    if(t.dir==="in"){bal+=t.amt;inT+=t.amt;}
+    else if(t.dir==="out"){bal-=t.amt;outT+=t.amt;cats[t.cat]=(cats[t.cat]||0)+t.amt;}
+    t._bal=bal;
+  });
   return {bal,inT,outT,cats};}
 const toJ=(a,c)=>c==="JPY"?a:a/(S.kurs||1);
 function holdVal(h){return (Number(h.lots)||0)*100*(Number(h.last)||0);} // IDR
@@ -238,12 +291,80 @@ function nw(){
 let saveT;
 function persist(){
   S.updated=new Date().toISOString();
-  const p=document.getElementById("savePill");if(p){p.textContent="saving…";p.classList.remove("on");}
+  const p=document.getElementById("savePill");
+  if(p){p.textContent="syncing ☁️...";p.classList.remove("on");}
   clearTimeout(saveT);
-  saveT=setTimeout(async()=>{await STORE.set(KEY,JSON.stringify(S));if(p){p.textContent="saved";p.classList.add("on");}},400);
+  // Debounce 1 detik agar tidak spam request saat mengetik cepat
+  saveT=setTimeout(async()=>{
+    await STORE.set(KEY,JSON.stringify(S));
+    if(p){p.textContent="synced ✓";p.classList.add("on");}
+  }, 1000); 
 }
-async function load(){const v=await STORE.get(KEY);if(v){try{S=Object.assign(DEFAULTS(),JSON.parse(v));}catch(e){}}}
-function toast(t){const e=document.getElementById("toast");e.textContent=t;e.classList.add("show");clearTimeout(e._h);e._h=setTimeout(()=>e.classList.remove("show"),1900);}
+async function load(){const v=await STORE.get(KEY);if(v){try{S=Object.assign(DEFAULTS(),JSON.parse(v));S.viewCcy=S.viewCcy||"JPY";}catch(e){}}}
+function toast(t){const e=document.getElementById("toast");e.textContent=t;e.classList.add("show");clearTimeout(e._h);e._h=setTimeout(()=>e.classList.remove("show"),2500);}
+
+/* ===== BATCH REALTIME API (SCRAPING GOOGLE FINANCE + ER-API) ===== */
+async function fetchMarketData(silent=false){
+  if(!silent) toast("🔄 Sinkronisasi pasar real-time...");
+  let upK = false, upS = 0;
+  
+  // 1. Fetch Kurs Terkini (Stabil)
+  try {
+    const resKurs = await fetch("https://open.er-api.com/v6/latest/JPY?_=" + Date.now(), {cache: "no-store"});
+    if(resKurs.ok){
+      const dataK = await resKurs.json();
+      if(dataK && dataK.rates && dataK.rates.IDR){
+        const nk = parseFloat(dataK.rates.IDR.toFixed(2));
+        if(S.kurs !== nk) { S.kurs = nk; upK = true; }
+      }
+    }
+  } catch(e) { console.log("Gagal Kurs", e); }
+
+  // 2. Fetch Saham via Scraping Google Finance
+  try {
+    if(S.holdings.length > 0) {
+      const promises = S.holdings.map(async (h) => {
+        let ticker = h.ticker.toUpperCase().replace('.JK', '').trim();
+        let gfTicker = ticker.length === 4 ? ticker + ":IDX" : ticker; 
+
+        const url = `https://www.google.com/finance/quote/${gfTicker}`;
+        const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}&disableCache=true&_=${Date.now()}`;
+        
+        try {
+          const res = await fetch(proxyUrl, {cache: "no-store"});
+          if(res.ok) {
+            const data = await res.json();
+            const html = data.contents;
+            const match = html.match(/class="YMlKec fxKbKc"[^>]*>([^<]+)<\/div>/);
+            if(match && match[1]){
+              let pStr = match[1].replace(/[^0-9.,]/g, '');
+              if(pStr.indexOf(',') > pStr.indexOf('.')) {
+                pStr = pStr.replace(/\./g, '').replace(',', '.');
+              } else {
+                pStr = pStr.replace(/,/g, '');
+              }
+              
+              let price = parseFloat(pStr);
+              if(price && !isNaN(price) && h.last !== price) {
+                h.last = price;
+                upS++;
+              }
+            }
+          }
+        } catch(err) { console.log("Gagal fetch " + gfTicker, err); }
+      });
+      
+      await Promise.all(promises);
+    }
+  } catch(e) { console.log("Gagal Saham", e); }
+
+  if(upK || upS > 0) {
+    persist(); render();
+    if(!silent) toast(`✓ Berhasil: Kurs & ${upS} saham diperbarui!`);
+  } else {
+    if(!silent) toast("Harga sama / up-to-date ✓");
+  }
+}
 
 /* ===== SVG charts ===== */
 function donut(items,size){ // items:[{label,val,color}]
@@ -292,14 +413,16 @@ function gauge(pct){
 }
 
 /* ===== views ===== */
+function toggleViewCcy(){ S.viewCcy=S.viewCcy==='IDR'?'JPY':'IDR';persist();render(); }
+
 function render(){
   document.getElementById("fab").style.display=(S.tab==="ledger")?"flex":"none";
-  let html=`<header><div class="brand"><div class="mk">Rp</div><h1>Buku Kas</h1></div><span class="pill on" id="savePill">saved</span></header>`;
+  let html=`<header><div class="brand"><button class="mk" onclick="toggleViewCcy()" title="Ganti mata uang">${S.viewCcy==='IDR'?'Rp':'¥'}</button><h1>Buku Kas</h1></div><span class="pill on" id="savePill">saved</span></header>`;
   if(S.tab==="home")html+=viewHome();
   else if(S.tab==="ledger")html+=viewLedger();
   else if(S.tab==="invest")html+=viewInvest();
   else html+=viewStats();
-  html+=`<p class="note">${S.updated?"Saved "+new Date(S.updated).toLocaleDateString():"Not saved"} · data stays on this device · educational tool, not financial advice</p>`;
+  html+=`<p class="note">${S.updated?"Saved "+new Date(S.updated).toLocaleDateString():"Not saved"} · cloud synced</p>`;
   document.getElementById("app").innerHTML=html;
   const nav=document.getElementById("nav");nav.style.display="flex";
   nav.innerHTML=[["home","◎","Home"],["ledger","▤","Ledger"],["invest","▰","Invest"],["stats","◔","Stats"]]
@@ -312,31 +435,75 @@ function viewHome(){
   const conc=n.assets?n.stocks/n.assets*100:0;
   const ef=S.accounts.find(a=>a.app==="JP bank"); const efv=ef?toJ(Number(ef.amount)||0,ef.ccy):0;
   const efp=Math.max(0,Math.min(100,efv/(S.goalEmergency||1)*100));
+  
+  let cJPY=0, cIDR=0;
+  S.accounts.forEach(a=>{
+    const amt = Number(a.amount)||0;
+    if(amt>=0){
+      if(a.ccy==='JPY') cJPY+=amt;
+      else if(a.ccy==='IDR') cIDR+=amt;
+    }
+  });
+
+  let expHtml = `
+  <div class="panel">
+    <div class="ph"><h2>📊 Pengeluaran Bulan Ini</h2><span class="lbl">${monthLabel(S.cur)}</span></div>
+    <div style="padding:16px 15px">
+      <div style="display:flex; justify-content:space-between; align-items:flex-end;">
+        <div class="big" style="color:var(--out)">${disp(c.outT)}</div>
+        <div style="font-size:12px; color:var(--muted); font-family:'Spline Sans Mono'">Sisa: ${disp(c.inT - c.outT, false)}</div>
+      </div>
+      <div style="height:8px;background:var(--card2);border-radius:4px;overflow:hidden;margin:12px 0;display:flex">
+        ${Object.keys(c.cats).length ? Object.keys(c.cats).sort((a,b)=>c.cats[b]-c.cats[a]).map(k=>`<div style="height:100%;width:${(c.cats[k]/c.outT*100)}%;background:${COL[k]||'#8A8569'}"></div>`).join('') : '<div style="width:100%;background:var(--line)"></div>'}
+      </div>
+      <div style="margin-top:12px">
+        ${Object.keys(c.cats).length ? Object.keys(c.cats).sort((a,b)=>c.cats[b]-c.cats[a]).slice(0,4).map(k=>`
+          <div style="display:flex;justify-content:space-between;margin-bottom:8px;font-size:13px;align-items:center;">
+            <div style="display:flex;align-items:center;gap:8px">
+              <span style="display:inline-block;width:10px;height:10px;border-radius:3px;background:${COL[k]||'#8A8569'}"></span>
+              ${k}
+            </div>
+            <span class="mono">${disp(c.cats[k], false)}</span>
+          </div>
+        `).join('') : '<div class="empty" style="padding:0">Belum ada pengeluaran bulan ini.</div>'}
+      </div>
+    </div>
+  </div>`;
+
   return `
-  ${S.showInstall?`<div class="install"><div>📲 <b>Make it an app:</b> open this in Chrome → ⋮ menu → <b>Add to Home screen</b>. It runs full-screen offline, with its own icon.</div><button class="x" onclick="S.showInstall=false;persist();render()">×</button></div>`:""}
+  ${S.showInstall?`<div class="install"><div>📲 <b>Make it an app:</b> open this in Chrome → ⋮ menu → <b>Add to Home screen</b>.</div><button class="x" onclick="S.showInstall=false;persist();render()">×</button></div>`:""}
   <div class="hero">
     <div class="lbl">Kekayaan · Net worth</div>
-    <div class="nw">${yen(n.net)}</div>
-    <div class="nw-sub">≈ ${rp(n.net*S.kurs)} · 1¥=${S.kurs}Rp</div>
+    <div class="nw">${disp(n.net)}</div>
+    <div class="nw-sub">≈ ${S.viewCcy==='IDR'?yen(n.net):rp(n.net*S.kurs)} · 1¥=${S.kurs}Rp</div>
     <div class="spark">${areaChart(snap.length?snap:[n.net],460,70)}</div>
   </div>
   <div class="grid2">
-    <div class="card"><div class="k">Investments</div><div class="v">${yen(n.stocks)}</div><div class="s">${conc.toFixed(0)}% of assets</div></div>
-    <div class="card"><div class="k">Cash</div><div class="v">${yen(n.cash)}</div><div class="s">across accounts</div></div>
-    <div class="card"><div class="k">Debt (JCB)</div><div class="v" style="color:var(--neg)">−${yen(n.debt)}</div><div class="s">pay in full</div></div>
-    <div class="card"><div class="k">This month</div><div class="v" style="color:${c.inT-c.outT>=0?'var(--in)':'var(--neg)'}">${c.inT-c.outT>=0?'+':'−'}${yen(Math.abs(c.inT-c.outT))}</div><div class="s">in − out</div></div>
+    <div class="card"><div class="k">Investments</div><div class="v">${disp(n.stocks)}</div><div class="s">${conc.toFixed(0)}% of assets</div></div>
+    <div class="card"><div class="k">Cash</div><div class="v">${disp(n.cash)}</div><div class="s">across accounts</div></div>
   </div>
+  
   <div class="panel">
-    <div class="ph"><h2>Emergency fund</h2><span class="lbl">goal ${k1(S.goalEmergency)}</span></div>
-    <div style="padding:16px 15px">
-      <div style="height:10px;background:var(--card2);border-radius:6px;overflow:hidden;border:1px solid var(--line)"><i style="display:block;height:100%;width:${efp}%;background:linear-gradient(90deg,#1F5C56,#2E7D5B)"></i></div>
-      <div style="display:flex;justify-content:space-between;font-family:'Spline Sans Mono';font-size:12px;color:var(--muted);margin-top:10px"><span>${yen(efv)} / ${yen(S.goalEmergency)}</span><span>${efp.toFixed(0)}%</span></div>
+    <div class="ph"><h2>💵 Saldo Tersedia</h2><span class="lbl">Uang Tunai & Rekening</span></div>
+    <div style="padding:14px 15px">
+      <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--line);padding-bottom:10px;margin-bottom:10px">
+        <div style="display:flex;align-items:center;gap:8px"><span class="mk" style="width:24px;height:24px;font-size:11px;border-radius:6px;background:var(--teal)">¥</span> Yen (JPY)</div>
+        <span class="mono" style="font-size:15px;font-weight:600">${yen(cJPY)}</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <div style="display:flex;align-items:center;gap:8px"><span class="mk" style="width:24px;height:24px;font-size:11px;border-radius:6px;background:var(--in)">Rp</span> Rupiah (IDR)</div>
+        <span class="mono" style="font-size:15px;font-weight:600">${rp(cIDR)}</span>
+      </div>
     </div>
   </div>
+
+  ${expHtml}
+
   <div class="panel">
-    <div class="ph"><h2>Concentration risk</h2><span class="lbl">stocks ÷ assets</span></div>
-    <div class="gauge-wrap">${gauge(conc)}
-      <p style="font-size:12px;color:var(--muted);text-align:center;line-height:1.6;margin-top:6px">${conc>85?"Almost everything is in 2 stocks. Build the cash buffer before adding more.":conc>60?"Heavily concentrated — keep diversifying as the buffer grows.":"Reasonably balanced."}</p>
+    <div class="ph"><h2>Emergency fund</h2><span class="lbl">goal ${S.viewCcy==='IDR'?rp(S.goalEmergency*S.kurs):k1(S.goalEmergency)}</span></div>
+    <div style="padding:16px 15px">
+      <div style="height:10px;background:var(--card2);border-radius:6px;overflow:hidden;border:1px solid var(--line)"><i style="display:block;height:100%;width:${efp}%;background:linear-gradient(90deg,#1F5C56,#2E7D5B)"></i></div>
+      <div style="display:flex;justify-content:space-between;font-family:'Spline Sans Mono';font-size:12px;color:var(--muted);margin-top:10px"><span>${disp(efv)} / ${disp(S.goalEmergency)}</span><span>${efp.toFixed(0)}%</span></div>
     </div>
   </div>`;
 }
@@ -351,41 +518,51 @@ function viewLedger(){
     <button class="madd" onclick="newMonth()">＋BLN</button>
   </div>
   <div class="panel">
-    <div class="sum-top"><div><div class="lbl">Saldo akhir</div><div class="bal">${yen(c.bal)}</div></div>
-      <div class="io"><span class="i">▲ ${nf(c.inT)}</span><span class="o">▼ ${nf(c.outT)}</span></div></div>
+    <div class="sum-top"><div><div class="lbl">Saldo akhir</div><div class="bal">${disp(c.bal)}</div></div>
+      <div class="io"><span class="i">▲ ${disp(c.inT,false)}</span><span class="o">▼ ${disp(c.outT,false)}</span></div></div>
     <div style="padding:2px 12px 14px">
       ${Object.keys(c.cats).length?Object.keys(c.cats).sort((a,b)=>c.cats[b]-c.cats[a]).map(k=>{
         const v=c.cats[k],p=c.outT?v/c.outT*100:0;
         return `<div style="display:flex;align-items:center;gap:10px;padding:8px 4px">
           <span style="width:88px;font-size:12.5px;font-weight:500">${k}</span>
           <span style="flex:1;height:7px;background:var(--card2);border-radius:5px;overflow:hidden"><i style="display:block;height:100%;width:${p.toFixed(0)}%;background:${COL[k]||'#8A8569'}"></i></span>
-          <span class="mono" style="font-size:12px;min-width:96px;text-align:right">${nf(v)} <span style="color:var(--faint);font-size:10px">${p.toFixed(0)}% · ${nf(v/elapsed(S.cur))}/d</span></span></div>`;
+          <span class="mono" style="font-size:12px;min-width:96px;text-align:right">${disp(v,false)} <span style="color:var(--faint);font-size:10px">${p.toFixed(0)}%</span></span></div>`;
       }).join(""):`<div class="empty" style="padding:14px">No spending yet — tap ＋</div>`}
     </div>
   </div>
   <div class="panel">
     <div class="ph"><h2>Entries</h2><span class="lbl">${MO().tx.length}</span></div>
-    ${tx.length?tx.map(t=>{const d=new Date(t.date);return `<div class="tx" onclick="openTx('${t.id}')">
+    ${tx.length?tx.map(t=>{
+      const d=new Date(t.date);
+      const acc = t.accId ? S.accounts.find(a=>a.id===t.accId) : null;
+      const acc2 = t.accId2 ? S.accounts.find(a=>a.id===t.accId2) : null;
+      let dtL = ``;
+      if(t.dir==="tf"){
+         dtL = `<span class="tg" style="margin-left:5px;background:#E2DBC4">${acc?esc(acc.name):'?'} ➔ ${acc2?esc(acc2.name):'?'}</span>`;
+         if(t.tfFee) dtL += ` <span class="tg" style="color:var(--out)">Fee ${t.tfFee}</span>`;
+      } else {
+         dtL = acc?`<span class="tg" style="margin-left:5px;background:#E2DBC4">${esc(acc.name)}</span>`:'';
+      }
+      return `<div class="tx" onclick="openTx('${t.id}')">
       <div class="dt">${monthShort(t.date.slice(0,7))}<b>${d.getUTCDate()}</b></div>
-      <div class="mid"><div class="ds">${esc(t.desc)||"—"}</div><span class="tg">${t.cat}</span></div>
-      <div class="rt"><div class="a ${t.dir==='in'?'amt-in':'amt-out'}">${t.dir==='in'?'+':'−'}${nf(t.amt)}</div><div class="b">${nf(t._bal)}</div></div></div>`;}).join("")
-      :`<div class="empty">Empty month. Carry-over: <b>${yen(MO().start||0)}</b><br><br>Tap ＋ to add a transaction.</div>`}
+      <div class="mid"><div class="ds">${esc(t.desc)||"—"}</div><span class="tg">${t.cat}</span>${dtL}</div>
+      <div class="rt"><div class="a ${t.dir==='in'?'amt-in':t.dir==='out'?'amt-out':'amt-tf'}">${t.dir==='in'?'+':t.dir==='out'?'−':'⇋'}${disp(t.amt,false)}</div><div class="b">${disp(t._bal,false)}</div></div></div>`;}).join("")
+      :`<div class="empty">Empty month. Carry-over: <b>${disp(MO().start||0)}</b><br><br>Tap ＋ to add a transaction.</div>`}
     <div class="row" style="border-top:1px solid var(--line2)"><span class="lbl f1">Saldo bulan lalu (carry)</span>
-      <input class="vv" type="number" inputmode="numeric" value="${MO().start||0}" oninput="MO().start=parseFloat(this.value)||0;persist();render()"></div>
+      <input class="vv" type="number" inputmode="numeric" value="${MO().start||0}" onchange="MO().start=parseFloat(this.value)||0;persist();render()"></div>
   </div>`;
 }
 
 function viewInvest(){
   const tot=S.holdings.reduce((s,h)=>s+holdJ(h),0);
   const items=S.holdings.map(h=>({label:h.broker+" "+h.ticker,val:holdJ(h),color:COL[Object.keys(COL)[(h.ticker.charCodeAt(0))%6]]||'#3F7DB0'}));
-  // stable colors per holding
   const pal=["#1F5C56","#B5613A","#3F7DB0","#C7913B","#7C5BAE","#2E7D5B"];
   items.forEach((it,i)=>it.color=pal[i%pal.length]);
   return `
   <div class="hero" style="background:linear-gradient(155deg,#3F7DB0,#2C5876)">
     <div class="lbl" style="color:rgba(242,238,225,.55)">Portfolio value</div>
-    <div class="nw">${yen(tot)}</div>
-    <div class="nw-sub">≈ ${rp(tot*S.kurs)}</div>
+    <div class="nw">${disp(tot)}</div>
+    <div class="nw-sub">≈ ${S.viewCcy==='IDR'?yen(tot):rp(tot*S.kurs)}</div>
   </div>
   <div class="panel">
     <div class="ph"><h2>Allocation</h2><span class="lbl">by holding</span></div>
@@ -395,26 +572,40 @@ function viewInvest(){
     </div>
   </div>
   <div class="panel">
-    <div class="ph"><h2>Holdings</h2><span class="lbl">tap to edit</span></div>
+    <div class="ph"><h2>Holdings <button class="addmini" style="display:inline;width:auto;padding:3px 8px;margin-left:8px;border:1px solid var(--line);border-radius:6px;background:var(--card2)" onclick="fetchMarketData(false)">🔄 Sinkronisasi</button></h2><span class="lbl">tap to edit</span></div>
     ${S.holdings.map(h=>{const vIDR=holdVal(h),vJ=holdJ(h),gain=((h.last-h.avg)*(h.lots*100)),gp=h.avg?((h.last/h.avg-1)*100):0;
       return `<div class="hold" onclick="openHold('${h.id}')">
         <div class="hm"><div class="t">${esc(h.broker)} · ${esc(h.ticker)}</div>
-          <div class="s">${nf(h.lots)} lot · Rp${nf(h.last)} (avg ${nf(h.avg)})</div></div>
-        <div class="hv"><div class="a">${yen(vJ)}</div>
+          <div class="s">${Number(h.lots).toLocaleString("en-US", {maximumFractionDigits: 4})} lot · Rp${nf(h.last)} (avg ${nf(h.avg)})</div></div>
+        <div class="hv"><div class="a">${disp(vJ)}</div>
           <div class="g ${gain>=0?'gp':'gn'}">${gain>=0?'+':''}${nf(gain)} Rp · ${gp.toFixed(1)}%</div></div></div>`;}).join("")}
     <button class="addmini" onclick="openHold()">＋ ADD HOLDING</button>
   </div>
+  
   <div class="panel">
     <div class="ph"><h2>Cash & accounts</h2><span class="lbl">Kekayaan</span></div>
-    ${S.accounts.map(a=>`<div class="row">
-      <input class="f1" value="${esc(a.name)}" oninput="upAcc('${a.id}','name',this.value)">
-      <select class="ap" onchange="upAcc('${a.id}','ccy',this.value)" style="padding:8px 4px">${["JPY","IDR"].map(o=>`<option ${a.ccy===o?'selected':''}>${o}</option>`).join("")}</select>
-      <input class="vv" type="number" inputmode="numeric" value="${a.amount}" oninput="upAcc('${a.id}','amount',this.value)">
-      <button class="rm" onclick="rmAcc('${a.id}')">×</button></div>`).join("")}
-    <button class="addmini" onclick="addAcc()">＋ ADD ACCOUNT</button>
-    <div class="row"><span class="lbl f1">Kurs · 1 ¥ = ? Rp</span>
-      <input class="vv" type="number" inputmode="decimal" value="${S.kurs}" oninput="S.kurs=parseFloat(this.value)||0;persist();render()"></div>
-    <div class="tot"><span>Net worth</span><span>${yen(nw().net)}</span></div>
+    <div style="padding:12px 14px">
+      ${S.accounts.map(a=>`
+        <div class="acc-card">
+          <div class="acc-row1">
+            <input class="acc-name" value="${esc(a.name)}" onchange="upAcc('${a.id}','name',this.value)" placeholder="Nama Akun">
+            <select class="acc-ccy" onchange="upAcc('${a.id}','ccy',this.value)">${["JPY","IDR"].map(o=>`<option ${a.ccy===o?'selected':''}>${o}</option>`).join("")}</select>
+            <button class="rm" onclick="rmAcc('${a.id}')" title="Hapus Akun">×</button>
+          </div>
+          <div class="acc-row2">
+            <span style="font-size:12px;color:var(--faint);font-family:'Spline Sans Mono'">Saldo:</span>
+            <input class="acc-amt" type="number" inputmode="decimal" value="${a.amount}" onchange="upAcc('${a.id}','amount',this.value)" placeholder="0">
+          </div>
+        </div>
+      `).join("")}
+      <button class="addmini" onclick="addAcc()" style="border:1px dashed var(--line); border-radius:12px; margin-top:4px">＋ TAMBAH AKUN</button>
+    </div>
+    
+    <div class="row" style="border-top:1px solid var(--line)">
+      <span class="lbl f1">Kurs · 1 ¥ = ? Rp</span>
+      <input class="vv" type="number" inputmode="decimal" value="${S.kurs}" onchange="S.kurs=parseFloat(this.value)||0;persist();render()" style="border:none;background:transparent;padding:0;text-align:right">
+    </div>
+    <div class="tot"><span>Net worth</span><span>${disp(nw().net)}</span></div>
   </div>`;
 }
 
@@ -428,7 +619,7 @@ function viewStats(){
   <div class="panel">
     <div class="ph"><h2>Net-worth trend</h2><button class="madd" onclick="snapNow()">＋ Snapshot now</button></div>
     <div style="padding:14px">${areaChart(S.snapshots.map(s=>s.net).length?S.snapshots.map(s=>s.net):[],460,140)}</div>
-    ${S.snapshots.slice(-6).reverse().map(s=>`<div class="tx"><div class="mid"><div class="ds mono" style="font-size:13px">${s.month}</div></div><div class="rt"><div class="a">${yen(s.net)}</div></div></div>`).join("")}
+    ${S.snapshots.slice(-6).reverse().map(s=>`<div class="tx"><div class="mid"><div class="ds mono" style="font-size:13px">${s.month}</div></div><div class="rt"><div class="a">${disp(s.net)}</div></div></div>`).join("")}
   </div>
   <div class="panel">
     <div class="ph"><h2>In vs Out</h2><span class="lbl">last ${keys.length} mo</span></div>
@@ -444,7 +635,7 @@ function viewStats(){
   </div>
   <div class="grid2">
     <div class="card"><div class="k">Savings rate</div><div class="v" style="color:${sr>=0?'var(--in)':'var(--neg)'}">${sr.toFixed(0)}%</div><div class="s">this month</div></div>
-    <div class="card"><div class="k">Avg spend/day</div><div class="v">${yen(c.outT/elapsed(S.cur))}</div><div class="s">${monthShort(S.cur)}</div></div>
+    <div class="card"><div class="k">Avg spend/day</div><div class="v">${disp(c.outT/elapsed(S.cur))}</div><div class="s">${monthShort(S.cur)}</div></div>
   </div>
   <div class="frow">
     <button class="fb" onclick="exportCSV()">Export CSV → Excel</button>
@@ -453,30 +644,186 @@ function viewStats(){
   <details><summary>RESET TO MY CURRENT SITUATION</summary><div class="frow"><button class="fb" style="border-color:var(--neg);color:var(--neg)" onclick="resetAll()">Erase & restore seed</button></div></details>`;
 }
 
+window.updTf = function(){
+  if(txDir==="tf"){
+    const a1 = S.accounts.find(a=>a.id===val('txAcc'));
+    const a2 = S.accounts.find(a=>a.id===val('txAcc2'));
+    if(a1) { el('lblOut').textContent = a1.ccy; el('lblFee').textContent = a1.ccy; }
+    if(a2) { el('lblIn').textContent = a2.ccy; }
+  } else {
+    const a1 = S.accounts.find(a=>a.id===val('txAcc'));
+    if(a1 && el('lblReg')) el('lblReg').textContent = a1.ccy;
+  }
+};
+
 /* ===== transaction sheet ===== */
-function openTx(id){editId=id||null;const t=id?MO().tx.find(x=>x.id===id):null;txDir=t?t.dir:"out";txCat=t?t.cat:"Groceries";drawTx(t);document.getElementById("ov").classList.add("show");if(!t)setTimeout(()=>{const a=document.getElementById("amt");if(a)a.focus();},120);}
+function openTx(id){editId=id||null;const t=id?MO().tx.find(x=>x.id===id):null;txDir=t?t.dir:"out";txCat=t?t.cat:"Groceries";drawTx(t);document.getElementById("ov").classList.add("show");if(!t)setTimeout(()=>{const a=document.getElementById(txDir==='tf'?'tfOut':'amt');if(a)a.focus();},120);}
+
 function drawTx(t){
-  const cats=txDir==="out"?OUT_CATS:IN_CATS;
+  const cats=txDir==="out"?OUT_CATS:txDir==="in"?IN_CATS:TF_CATS;
+  const isTf = txDir==="tf";
+  
+  let defAc = null, defAc2 = null;
+  if(!t){
+    if(txDir==="out") {
+       defAc = S.lastOutAccId;
+       if(!S.accounts.find(a=>a.id===defAc)) defAc = S.accounts.find(a=>a.name==='Dompet')?.id;
+    }
+    else if(txDir==="in") defAc = S.accounts.find(a=>a.name==='Yuchou')?.id;
+    else if(txDir==="tf") {
+      defAc = S.accounts.find(a=>a.name==='Yuchou')?.id;
+      defAc2 = S.accounts.find(a=>a.name==='Dompet')?.id;
+    }
+  }
+  
   document.getElementById("sheet").innerHTML=`<div class="grip"></div>
-  <div class="seg"><button class="${txDir==='out'?'act outc':''}" onclick="setDir('out')">▼ Keluar</button><button class="${txDir==='in'?'act inc':''}" onclick="setDir('in')">▲ Masuk</button></div>
-  <div class="field"><label>Jumlah ¥</label><input id="amt" class="big" type="number" inputmode="numeric" placeholder="0" value="${t?t.amt:''}"></div>
-  ${!t?`<div class="field"><label>Quick add</label><div class="chips">${QUICK.filter(q=>q.dir===txDir).map((q,i)=>`<button class="chip q" onclick="quick(${i})">${q.l}</button>`).join("")}</div></div>`:""}
-  <div class="field"><label>Keterangan</label><input id="desc" placeholder="e.g. Tsuruha" value="${t?esc(t.desc):''}"></div>
+  <div class="seg">
+    <button class="${txDir==='out'?'act outc':''}" onclick="setDir('out')">▼ Keluar</button>
+    <button class="${txDir==='in'?'act inc':''}" onclick="setDir('in')">▲ Masuk</button>
+    <button class="${txDir==='tf'?'act tfc':''}" onclick="setDir('tf')">⇋ Transfer</button>
+  </div>
+  
+  ${isTf ? `
+  <div class="grid2" style="margin-top:0">
+    <div class="field"><label>DARI Akun</label>
+      <select id="txAcc" onchange="updTf()">
+        ${S.accounts.map(a=>`<option value="${a.id}" ${(t&&t.accId===a.id)||(!t&&defAc===a.id)?'selected':''}>${esc(a.name)} (${a.ccy})</option>`).join("")}
+      </select>
+    </div>
+    <div class="field"><label>KE Akun</label>
+      <select id="txAcc2" onchange="updTf()">
+        ${S.accounts.map(a=>`<option value="${a.id}" ${(t&&t.accId2===a.id)||(!t&&defAc2===a.id)?'selected':''}>${esc(a.name)} (${a.ccy})</option>`).join("")}
+      </select>
+    </div>
+  </div>
+  <div class="field"><label>Nominal Keluar <span id="lblOut" class="tg"></span></label>
+     <input id="tfOut" class="big" type="number" inputmode="decimal" placeholder="0" value="${t?t.tfOut||t.rawAmt||t.amt:''}">
+  </div>
+  <div class="field"><label>Biaya Admin <span id="lblFee" class="tg"></span></label>
+     <input id="tfFee" class="big" type="number" inputmode="decimal" placeholder="0" value="${t?t.tfFee||0:''}">
+  </div>
+  <div class="field"><label>Nominal Diterima <span id="lblIn" class="tg"></span></label>
+     <input id="tfIn" class="big" type="number" inputmode="decimal" placeholder="0" value="${t?t.tfIn||t.rawAmt||t.amt:''}">
+     <p style="font-size:10px;color:var(--muted);text-align:center;margin-top:4px">Isi persis seperti mutasi akun tujuan</p>
+  </div>
+  ` : `
+  <div class="field"><label>Nominal <span id="lblReg" class="tg"></span></label><input id="amt" class="big" type="number" inputmode="decimal" placeholder="0" value="${t?(t.rawAmt||t.amt):''}"></div>
+  <div class="field"><label>Dompet / Akun</label>
+    <select id="txAcc" onchange="updTf()">
+      ${S.accounts.map(a=>`<option value="${a.id}" ${(t&&t.accId===a.id)||(!t&&defAc===a.id)?'selected':''}>${esc(a.name)} (${a.ccy})</option>`).join("")}
+    </select>
+  </div>
+  `}
+  
+  ${!t&&!isTf?`<div class="field"><label>Quick add</label><div class="chips">${QUICK.filter(q=>q.dir===txDir).map((q,i)=>`<button class="chip q" onclick="quick(${i})">${q.l}</button>`).join("")}</div></div>`:""}
+  <div class="field"><label>Keterangan</label><input id="desc" placeholder="e.g. ${isTf?'Tarik tunai':'Tsuruha'}" value="${t?esc(t.desc):''}"></div>
   <div class="field"><label>Kategori</label><div class="chips" id="cc">${cats.map(k=>`<button class="chip ${txCat===k?'act':''}" onclick="setCat('${k}')">${k}</button>`).join("")}</div></div>
   <div class="field"><label>Tanggal</label><input id="date" type="date" value="${t?t.date:new Date().toISOString().slice(0,10)}"></div>
   <div class="acts">${t?`<button class="del" onclick="delTx('${t.id}')">Hapus</button>`:""}<button onclick="closeOv()">Batal</button><button class="save" onclick="saveTx()">Simpan</button></div>`;
+  setTimeout(updTf, 50);
 }
-function setDir(d){txDir=d;if((d==="out"?OUT_CATS:IN_CATS).indexOf(txCat)<0)txCat=d==="out"?"Groceries":"Income";
-  const t=editId?MO().tx.find(x=>x.id===editId):null;const a=val("amt"),ds=val("desc"),dt=val("date");
-  drawTx(t?Object.assign({},t,{amt:a,desc:ds,date:dt}):null);if(!t){if(a)el("amt").value=a;if(ds)el("desc").value=ds;}}
+
+function setDir(d){
+  const oldDir = txDir;
+  txDir=d;
+  if(d==="tf") txCat="Transfer";
+  else if((d==="out"?OUT_CATS:IN_CATS).indexOf(txCat)<0) txCat=d==="out"?"Groceries":"Income";
+  const t=editId?MO().tx.find(x=>x.id===editId):null;
+  const a=val(oldDir==='tf'?'tfOut':'amt'),ds=val("desc"),dt=val("date");
+  let ac=val("txAcc"),ac2=val("txAcc2");
+
+  if(!t && oldDir !== d){
+    if(d==='tf') { 
+      const y = S.accounts.find(x=>x.name==='Yuchou'); if(y) ac=y.id; 
+      const dm = S.accounts.find(x=>x.name==='Dompet'); if(dm) ac2=dm.id; 
+    } else if(d==='in') { 
+      const y = S.accounts.find(x=>x.name==='Yuchou'); if(y) ac=y.id; 
+    } else if(d==='out') { 
+      ac = S.lastOutAccId;
+      if(!S.accounts.find(x=>x.id===ac)) {
+         const dm = S.accounts.find(x=>x.name==='Dompet'); if(dm) ac=dm.id;
+      }
+    }
+  }
+
+  drawTx(t?Object.assign({},t,{amt:a,desc:ds,date:dt,accId:ac,accId2:ac2}):null);
+  if(!t){
+    if(a){ const ea=el(d==='tf'?'tfOut':'amt'); if(ea) ea.value=a; }
+    if(ds)el("desc").value=ds;
+    if(ac)el("txAcc").value=ac;
+    if(ac2&&el("txAcc2"))el("txAcc2").value=ac2;
+  }
+}
+
 function setCat(k){txCat=k;[...document.querySelectorAll("#cc .chip")].forEach(b=>b.classList.toggle("act",b.textContent===k));}
-function quick(i){const q=QUICK.filter(x=>x.dir===txDir)[i];el("desc").value=q.d;setCat(q.c);if(q.a)el("amt").value=q.a;else el("amt").focus();}
-function saveTx(){const amt=parseFloat(val("amt"));if(!amt||amt<=0){toast("Masukkan jumlah");return;}
-  const desc=val("desc").trim(),date=val("date")||new Date().toISOString().slice(0,10);
-  if(editId){const t=MO().tx.find(x=>x.id===editId);Object.assign(t,{amt,desc,date,dir:txDir,cat:txCat});}
-  else MO().tx.push({id:u(),amt,desc,date,dir:txDir,cat:txCat});
-  persist();closeOv();render();toast(editId?"Diperbarui":"Tersimpan ✓");}
-function delTx(id){if(!confirm("Hapus transaksi ini?"))return;MO().tx=MO().tx.filter(x=>x.id!==id);persist();closeOv();render();}
+function quick(i){const q=QUICK.filter(x=>x.dir===txDir)[i];el("desc").value=q.d;setCat(q.c);if(q.a)el("amt").value=q.a;else el(txDir==='tf'?'tfOut':'amt').focus();}
+
+function saveTx(){
+  const desc=val("desc").trim(), date=val("date")||new Date().toISOString().slice(0,10);
+  const accId=val("txAcc");
+
+  if(txDir==="tf"){
+    const tfOut=parseFloat(val("tfOut")), tfFee=parseFloat(val("tfFee"))||0, tfIn=parseFloat(val("tfIn"));
+    const accId2=val("txAcc2");
+    if(!tfOut || !tfIn){toast("Masukkan nominal");return;}
+    if(accId===accId2){toast("Akun asal & tujuan sama!");return;}
+
+    const nA=S.accounts.find(a=>a.id===accId), nB=S.accounts.find(a=>a.id===accId2);
+    const baseAmt = nA && nA.ccy === "JPY" ? tfOut : tfOut / (S.kurs || 1);
+
+    if(editId){
+      const t=MO().tx.find(x=>x.id===editId);
+      if(t){
+        if(t.accId){const oA=S.accounts.find(a=>a.id===t.accId);if(oA)oA.amount+=(t.tfOut||t.rawAmt||t.amt)+(t.tfFee||0);}
+        if(t.accId2){const oB=S.accounts.find(a=>a.id===t.accId2);if(oB)oB.amount-=(t.tfIn||t.rawAmt||t.amt);}
+      }
+      Object.assign(t,{amt:baseAmt, tfOut, tfFee, tfIn, desc, date, dir:txDir, cat:txCat, accId, accId2});
+    } else {
+      MO().tx.push({id:u(), amt:baseAmt, tfOut, tfFee, tfIn, desc, date, dir:txDir, cat:txCat, accId, accId2});
+    }
+
+    if(nA) nA.amount -= (tfOut + tfFee);
+    if(nB) nB.amount += tfIn;
+  } else {
+    const inputAmt=parseFloat(val("amt")); if(!inputAmt||inputAmt<=0){toast("Masukkan nominal");return;}
+    const nA=S.accounts.find(a=>a.id===accId);
+    const baseAmt = nA && nA.ccy === "JPY" ? inputAmt : inputAmt / (S.kurs || 1);
+
+    if(editId){
+      const t=MO().tx.find(x=>x.id===editId);
+      if(t && t.accId){
+        const oA=S.accounts.find(a=>a.id===t.accId);
+        if(oA) { const oAmt = (t.rawAmt|| (oA.ccy==="JPY"?t.amt:t.amt*(S.kurs||1))); if(t.dir==="in") oA.amount-=oAmt; else oA.amount+=oAmt; }
+      }
+      Object.assign(t,{amt:baseAmt, rawAmt:inputAmt, desc, date, dir:txDir, cat:txCat, accId});
+    } else {
+      MO().tx.push({id:u(), amt:baseAmt, rawAmt:inputAmt, desc, date, dir:txDir, cat:txCat, accId});
+    }
+
+    if(nA){ if(txDir==="in") nA.amount+=inputAmt; else nA.amount-=inputAmt; }
+    if(txDir==="out") S.lastOutAccId = accId;
+  }
+
+  persist();closeOv();render();toast("Tersimpan ✓");
+}
+
+function delTx(id){
+  if(!confirm("Hapus transaksi ini?"))return;
+  const t=MO().tx.find(x=>x.id===id);
+  if(t){
+    if(t.dir==="tf"){
+      if(t.accId){const a=S.accounts.find(a=>a.id===t.accId);if(a)a.amount+=(t.tfOut||t.rawAmt||t.amt)+(t.tfFee||0);}
+      if(t.accId2){const a2=S.accounts.find(a=>a.id===t.accId2);if(a2)a2.amount-=(t.tfIn||t.rawAmt||t.amt);}
+    } else {
+      if(t.accId){
+        const acc=S.accounts.find(a=>a.id===t.accId);
+        if(acc){ const oAmt = (t.rawAmt|| (acc.ccy==="JPY"?t.amt:t.amt*(S.kurs||1))); if(t.dir==="in") acc.amount-=oAmt; else acc.amount+=oAmt; }
+      }
+    }
+  }
+  MO().tx=MO().tx.filter(x=>x.id!==id);
+  persist();closeOv();render();
+}
 
 /* ===== holding sheet ===== */
 let hEdit=null;
@@ -484,9 +831,9 @@ function openHold(id){hEdit=id||null;const h=id?S.holdings.find(x=>x.id===id):{b
   document.getElementById("sheet").innerHTML=`<div class="grip"></div>
   <div class="field"><label>Broker</label><input id="hb" value="${esc(h.broker)}"></div>
   <div class="field"><label>Ticker</label><input id="ht" value="${esc(h.ticker)}" placeholder="BRMS"></div>
-  <div class="field"><label>Lots (×100 shares)</label><input id="hl" type="number" inputmode="numeric" value="${h.lots}"></div>
-  <div class="field"><label>Avg buy price (Rp)</label><input id="ha" type="number" inputmode="numeric" value="${h.avg}"></div>
-  <div class="field"><label>Last price (Rp)</label><input id="hp" type="number" inputmode="numeric" value="${h.last}"></div>
+  <div class="field"><label>Lots (×100 shares)</label><input id="hl" type="number" inputmode="decimal" step="any" value="${h.lots}"></div>
+  <div class="field"><label>Avg buy price (Rp)</label><input id="ha" type="number" inputmode="decimal" step="any" value="${h.avg}"></div>
+  <div class="field"><label>Last price (Rp)</label><input id="hp" type="number" inputmode="decimal" step="any" value="${h.last}"></div>
   <div class="acts">${id?`<button class="del" onclick="delHold('${id}')">Hapus</button>`:""}<button onclick="closeOv()">Batal</button><button class="save" onclick="saveHold()">Simpan</button></div>`;
   document.getElementById("ov").classList.add("show");}
 function saveHold(){const o={broker:val("hb")||"?",ticker:(val("ht")||"?").toUpperCase(),lots:parseFloat(val("hl"))||0,avg:parseFloat(val("ha"))||0,last:parseFloat(val("hp"))||0};
@@ -517,7 +864,13 @@ function exportJSON(){dl("buku-kas-backup.json","application/json",JSON.stringif
 function dl(n,t,d){const b=new Blob([d],{type:t}),url=URL.createObjectURL(b),a=document.createElement("a");a.href=url;a.download=n;a.click();setTimeout(()=>URL.revokeObjectURL(url),800);toast("Downloaded "+n);}
 function resetAll(){if(!confirm("Erase everything and restore your seeded situation?"))return;S=DEFAULTS();persist();render();toast("Reset");}
 
-(async function(){await load();render();const p=el("savePill");if(p){p.textContent="saved";p.classList.add("on");}})();
+(async function(){
+  await load();
+  render();
+  const p=el("savePill");if(p){p.textContent="saved";p.classList.add("on");}
+  // Auto-fetch in background on app start silently
+  fetchMarketData(true);
+})();
 </script>
 </body>
 </html>
