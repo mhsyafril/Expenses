@@ -970,7 +970,12 @@ function viewStats(){
     <button class="fb" onclick="exportCSV()">Export CSV → Excel</button>
     <button class="fb" onclick="exportJSON()">Backup JSON</button>
   </div>
-  <details><summary>RESET TO MY CURRENT SITUATION</summary><div class="frow"><button class="fb" style="border-color:var(--neg);color:var(--neg)" onclick="resetAll()">Erase & restore seed</button></div></details>`;
+  <details><summary>PENGATURAN & KEAMANAN</summary>
+    <div class="frow">
+      <button class="fb" onclick="gantiPin()">Ubah PIN Akses</button>
+      <button class="fb" style="border-color:var(--neg);color:var(--neg)" onclick="resetAll()">Hapus Semua Data</button>
+    </div>
+  </details>`;
 }
 
 window.updTf = function(){
@@ -1195,7 +1200,29 @@ function exportJSON(){dl("buku-kas-backup.json","application/json",JSON.stringif
 
 function dl(n,t,d){const b=new Blob([d],{type:t}),url=URL.createObjectURL(b),a=document.createElement("a");a.href=url;a.download=n;a.click();setTimeout(()=>URL.revokeObjectURL(url),800);toast("Downloaded "+n);}
 function resetAll(){if(!confirm("Erase everything and restore your seeded situation?"))return;S=DEFAULTS();persist();render();toast("Reset");}
-
+function gantiPin() {
+  const newPin1 = prompt("Masukkan 6-digit PIN BARU Anda:");
+  if (!newPin1 || newPin1.length !== 6 || isNaN(newPin1)) {
+    alert("Batal. PIN harus persis 6 angka.");
+    return;
+  }
+  
+  const newPin2 = prompt("Konfirmasi PIN BARU Anda:");
+  if (newPin1 !== newPin2) {
+    alert("Batal. PIN konfirmasi tidak cocok!");
+    return;
+  }
+  
+  if (confirm("Yakin ingin mengganti PIN? Semua device lain akan diminta PIN baru ini nanti.")) {
+    // Timpa PIN yang sedang aktif di memori
+    currentPin = newPin1;
+    localStorage.setItem("app_key", currentPin);
+    
+    // Simpan ulang (fungsi persist otomatis menggunakan currentPin yang baru untuk mengenkripsi)
+    persist(); 
+    alert("Berhasil! Data sekarang diamankan dengan PIN baru Anda.");
+  }
+}
 /* ===== APP BOOTSTRAP (Fetch -> PIN -> Decrypt -> Start) ===== */
 (async function(){
   rawCipher = await STORE.get(KEY);
