@@ -125,6 +125,19 @@
   .addmini{width:100%;padding:11px;border:none;border-top:1px dashed var(--line2);background:transparent;color:var(--muted);font-family:'Spline Sans Mono';font-size:11px;cursor:pointer;}
   .addmini:active{background:var(--line)}
 
+  /* ===== Update-prices sheet rows ===== */
+  .pr-row{display:flex;align-items:center;gap:10px;padding:12px 4px;border-bottom:1px solid var(--line)}
+  .pr-row:last-of-type{border-bottom:none}
+  .pr-id{flex:1;min-width:0}
+  .pr-id .t{font-weight:600;font-size:14px}
+  .pr-id .s{font-family:'Spline Sans Mono';font-size:10px;color:var(--muted);margin-top:2px}
+  .pr-in{width:104px}
+  .pr-in input{width:100%;text-align:right;font-family:'Spline Sans Mono';font-weight:600;font-size:15px;padding:9px 8px}
+  .pr-st{width:20px;flex:0 0 auto;text-align:center;font-size:13px}
+  .pr-fetch{flex:0 0 auto;border:1px solid var(--line2);background:var(--card);border-radius:9px;padding:8px 10px;font-family:'Spline Sans Mono';font-size:11px;color:var(--muted);cursor:pointer}
+  .pr-fetch:active{background:var(--line2)}
+  .syncbar{display:flex;gap:8px;align-items:center;background:var(--card2);border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin:4px 0 12px;font-family:'Spline Sans Mono';font-size:11px;color:var(--muted);line-height:1.5}
+
   /* Enhanced Cash & Accounts Cards */
   .acc-card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; margin-bottom: 10px; display:flex; flex-direction:column; gap:10px; box-shadow: 0 1px 3px rgba(0,0,0,0.02);}
   .acc-row1 { display:flex; justify-content:space-between; align-items:center; gap:8px; }
@@ -174,7 +187,7 @@
   .fb:active{background:var(--line2)}
   details{margin-top:8px}summary{list-style:none;color:var(--muted);font-family:'Spline Sans Mono';font-size:10.5px;letter-spacing:.1em;padding:8px;text-align:center}summary::-webkit-details-marker{display:none}
   .note{font-size:10.5px;color:var(--faint);line-height:1.6;margin:14px 0 4px;padding:0 4px;text-align:center}
-  .toast{position:fixed;left:50%;bottom:calc(90px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(14px);background:var(--ink);color:#F2EEE1;padding:10px 18px;border-radius:24px;font-size:13px;opacity:0;pointer-events:none;transition:.3s;z-index:60;box-shadow:0 4px 12px rgba(0,0,0,0.15)}
+  .toast{position:fixed;left:50%;bottom:calc(90px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(14px);background:var(--ink);color:#F2EEE1;padding:10px 18px;border-radius:24px;font-size:13px;opacity:0;pointer-events:none;transition:.3s;z-index:60;box-shadow:0 4px 12px rgba(0,0,0,0.15);max-width:88%;text-align:center}
   .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
   .loading{padding:90px 20px;text-align:center;color:var(--muted);font-family:'Spline Sans Mono';font-size:13px;letter-spacing:.1em}
   svg{display:block}
@@ -187,10 +200,10 @@
   <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color:var(--teal);margin-bottom:16px"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
   <h2 style="font-family:'Bricolage Grotesque';font-weight:800;font-size:22px;margin-bottom:8px">Buku Kas Terkunci</h2>
   <p style="color:var(--muted);font-size:14px;margin-bottom:30px">Device baru. Masukkan PIN Anda.</p>
-  
+
   <div id="pinDisplay" class="pin-display"></div>
   <div id="pinMsg" class="pin-msg"></div>
-  
+
   <div class="pin-pad">
     <button class="pin-btn" onclick="addPin(1)">1</button>
     <button class="pin-btn" onclick="addPin(2)">2</button>
@@ -215,7 +228,7 @@
 
 <script>
 /* ===== PIN Authentication ===== */
-const APP_PIN = "130700"; 
+const APP_PIN = "130700";
 let currentPin = "";
 
 function initPin() {
@@ -244,7 +257,7 @@ function checkPin() {
   if (currentPin === APP_PIN) {
     localStorage.setItem("device_authorized", "true");
     document.getElementById("pinScreen").classList.add("hidden");
-    currentPin = ""; 
+    currentPin = "";
   } else {
     document.getElementById("pinMsg").textContent = "PIN Salah! Coba lagi.";
     currentPin = "";
@@ -256,11 +269,11 @@ function checkPin() {
   }
 }
 
-initPin(); // Jalankan proteksi
+initPin();
 
 /* ===== storage: Google Sheets API & localStorage Backup ===== */
 const KEY="buku-kas-app-v1";
-const API_URL = "https://script.google.com/macros/s/AKfycbwALUTZ_b5PuBRmRYZzFo27wGJNBV5lMEKDlgnOA19Efv-bE9xvFGzg6tfLWs-FvilR/exec"; 
+const API_URL = "https://script.google.com/macros/s/AKfycbwALUTZ_b5PuBRmRYZzFo27wGJNBV5lMEKDlgnOA19Efv-bE9xvFGzg6tfLWs-FvilR/exec";
 
 const STORE = {
   get: async (k) => {
@@ -273,13 +286,13 @@ const STORE = {
       return localStorage.getItem(k);
     }
   },
-  
+
   set: async (k, v) => {
     try {
       await fetch(API_URL, {
         method: "POST",
         body: v,
-        headers: { "Content-Type": "text/plain" } 
+        headers: { "Content-Type": "text/plain" }
       });
       localStorage.setItem(k, v);
     } catch(e) {
@@ -310,7 +323,7 @@ function DEFAULTS(){
   const m = "2026-05";
   const aY = u(), aB = u(), aI = u(), aS = u(), aD = u(), aP = u(), aJ = u();
   return {
-    kurs: 111.75, viewCcy: "JPY", cur: m, tab: "home", showInstall: true, lastOutAccId: null,
+    kurs: 111.3, viewCcy: "JPY", cur: m, tab: "home", showInstall: true, lastOutAccId: null,
     months:{
       "2026-05":{
         start: 11027,
@@ -338,6 +351,7 @@ function DEFAULTS(){
     ],
     goalEmergency:300000,
     snapshots:[],
+    priceLog:null,
     updated:null
   };
 }
@@ -389,74 +403,150 @@ function persist(){
   saveT=setTimeout(async()=>{
     await STORE.set(KEY,JSON.stringify(S));
     if(p){p.textContent="synced ✓";p.classList.add("on");}
-  }, 1000); 
+  }, 1000);
 }
 async function load(){const v=await STORE.get(KEY);if(v){try{S=Object.assign(DEFAULTS(),JSON.parse(v));S.viewCcy=S.viewCcy||"JPY";}catch(e){}}}
-function toast(t){const e=document.getElementById("toast");e.textContent=t;e.classList.add("show");clearTimeout(e._h);e._h=setTimeout(()=>e.classList.remove("show"),2500);}
+function toast(t){const e=document.getElementById("toast");e.textContent=t;e.classList.add("show");clearTimeout(e._h);e._h=setTimeout(()=>e.classList.remove("show"),3200);}
 
-/* ===== BATCH REALTIME API (SCRAPING GOOGLE FINANCE + ER-API) ===== */
-async function fetchMarketData(silent=false){
-  if(!silent) toast("🔄 Sinkronisasi pasar real-time...");
-  let upK = false, upS = 0;
-  
-  try {
-    const resKurs = await fetch("https://open.er-api.com/v6/latest/JPY?_=" + Date.now(), {cache: "no-store"});
-    if(resKurs.ok){
-      const dataK = await resKurs.json();
-      if(dataK && dataK.rates && dataK.rates.IDR){
-        const nk = parseFloat(dataK.rates.IDR.toFixed(2));
-        if(S.kurs !== nk) { S.kurs = nk; upK = true; }
+/* ============================================================
+   ===== ROBUST MARKET DATA  (multi-source, honest status) =====
+   ============================================================
+   Strategy per ticker, in order until one returns a sane price:
+     1. Stooq CSV   (IDX tickers as TICKER.JK) — clean CSV, no
+        fragile HTML class names. Tried via 2 CORS proxies.
+     2. Google Finance HTML scrape (TICKER:IDX) — original method,
+        kept only as a last-resort fallback, with 2 proxies.
+   Every holding gets a status: 'ok' | 'fail'. Nothing is reported
+   as success unless a price actually changed/was confirmed.
+*/
+
+const PROXIES = [
+  (url)=>`https://api.allorigins.win/raw?url=${encodeURIComponent(url)}&_=${Date.now()}`,
+  (url)=>`https://corsproxy.io/?url=${encodeURIComponent(url)}`,
+  (url)=>`https://thingproxy.freeboard.io/fetch/${url}`,
+];
+
+async function tryFetchText(targetUrl){
+  for(const mk of PROXIES){
+    try{
+      const res = await fetch(mk(targetUrl), {cache:"no-store"});
+      if(!res.ok) continue;
+      const txt = await res.text();
+      if(txt && txt.length > 5) return txt;
+    }catch(e){ /* try next proxy */ }
+  }
+  return null;
+}
+
+// Source 1: Stooq CSV. e.g. https://stooq.com/q/l/?s=brms.jk&f=sd2t2ohlcv&h&e=csv
+async function fetchStooq(ticker){
+  const sym = ticker.toLowerCase().replace('.jk','') + '.jk';
+  const url = `https://stooq.com/q/l/?s=${sym}&f=sd2t2ohlcv&h&e=csv`;
+  const txt = await tryFetchText(url);
+  if(!txt) return null;
+  // CSV: Symbol,Date,Time,Open,High,Low,Close,Volume
+  const lines = txt.trim().split(/\r?\n/);
+  if(lines.length < 2) return null;
+  const cells = lines[1].split(',');
+  const close = parseFloat(cells[6]);
+  if(close && !isNaN(close) && close > 0) return close;
+  return null;
+}
+
+// Source 2: Google Finance HTML scrape (original method, hardened)
+async function fetchGoogle(ticker){
+  const t = ticker.toUpperCase().replace('.JK','').trim();
+  const gf = t.length === 4 ? t + ":IDX" : t;
+  const url = `https://www.google.com/finance/quote/${gf}`;
+  const html = await tryFetchText(url);
+  if(!html) return null;
+  // Try a couple of patterns in case Google's class names shift
+  let m = html.match(/data-last-price="([0-9.]+)"/);
+  if(!m) m = html.match(/class="YMlKec fxKbKc"[^>]*>([^<]+)</);
+  if(!m) return null;
+  let pStr = String(m[1]).replace(/[^0-9.,]/g,'');
+  if(pStr.indexOf(',') > pStr.indexOf('.')) pStr = pStr.replace(/\./g,'').replace(',', '.');
+  else pStr = pStr.replace(/,/g,'');
+  const price = parseFloat(pStr);
+  return (price && !isNaN(price) && price > 0) ? price : null;
+}
+
+async function fetchOnePrice(h){
+  let p = await fetchStooq(h.ticker);
+  if(p) return {price:p, src:"stooq"};
+  p = await fetchGoogle(h.ticker);
+  if(p) return {price:p, src:"google"};
+  return null;
+}
+
+async function fetchKurs(){
+  try{
+    const res = await fetch("https://open.er-api.com/v6/latest/JPY?_=" + Date.now(), {cache:"no-store"});
+    if(res.ok){
+      const d = await res.json();
+      if(d && d.rates && d.rates.IDR){
+        return parseFloat(d.rates.IDR.toFixed(2));
       }
     }
-  } catch(e) { console.log("Gagal Kurs", e); }
+  }catch(e){}
+  // fallback proxy: Frankfurter
+  try{
+    const res = await fetch("https://api.frankfurter.app/latest?from=JPY&to=IDR&_="+Date.now(),{cache:"no-store"});
+    if(res.ok){ const d=await res.json(); if(d&&d.rates&&d.rates.IDR) return parseFloat(d.rates.IDR.toFixed(2)); }
+  }catch(e){}
+  return null;
+}
 
-  try {
-    if(S.holdings.length > 0) {
-      const promises = S.holdings.map(async (h) => {
-        let ticker = h.ticker.toUpperCase().replace('.JK', '').trim();
-        let gfTicker = ticker.length === 4 ? ticker + ":IDX" : ticker; 
+let SYNCING=false;
+async function fetchMarketData(silent=false){
+  if(SYNCING){ if(!silent) toast("Sinkronisasi sedang berjalan…"); return; }
+  SYNCING = true;
+  if(!silent) toast("🔄 Mengambil harga pasar…");
 
-        const url = `https://www.google.com/finance/quote/${gfTicker}`;
-        const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}&disableCache=true&_=${Date.now()}`;
-        
-        try {
-          const res = await fetch(proxyUrl, {cache: "no-store"});
-          if(res.ok) {
-            const data = await res.json();
-            const html = data.contents;
-            const match = html.match(/class="YMlKec fxKbKc"[^>]*>([^<]+)<\/div>/);
-            if(match && match[1]){
-              let pStr = match[1].replace(/[^0-9.,]/g, '');
-              if(pStr.indexOf(',') > pStr.indexOf('.')) {
-                pStr = pStr.replace(/\./g, '').replace(',', '.');
-              } else {
-                pStr = pStr.replace(/,/g, '');
-              }
-              
-              let price = parseFloat(pStr);
-              if(price && !isNaN(price) && h.last !== price) {
-                h.last = price;
-                upS++;
-              }
-            }
-          }
-        } catch(err) { console.log("Gagal fetch " + gfTicker, err); }
-      });
-      
-      await Promise.all(promises);
-    }
-  } catch(e) { console.log("Gagal Saham", e); }
+  let kursOld = S.kurs, kursNew = null, upS = [], failS = [];
 
-  if(upK || upS > 0) {
-    persist(); render();
-    if(!silent) toast(`✓ Berhasil: Kurs & ${upS} saham diperbarui!`);
-  } else {
-    if(!silent) toast("Harga sama / up-to-date ✓");
+  // 1) Exchange rate
+  const nk = await fetchKurs();
+  if(nk && nk > 0){ kursNew = nk; if(nk !== S.kurs) S.kurs = nk; }
+
+  // 2) Prices — sequential so we don't hammer the proxies
+  for(const h of S.holdings){
+    try{
+      const r = await fetchOnePrice(h);
+      if(r && r.price){
+        if(h.last !== r.price) h.last = r.price;
+        upS.push(`${h.ticker}→${nf(r.price)} (${r.src})`);
+      }else{
+        failS.push(h.ticker);
+      }
+    }catch(e){ failS.push(h.ticker); }
+  }
+
+  // 3) Honest result
+  const stamp = new Date().toLocaleString("en-GB",{day:"2-digit",month:"short",hour:"2-digit",minute:"2-digit"});
+  S.priceLog = {
+    at: stamp,
+    kurs: kursNew ? `${kursOld}→${kursNew}` : `${kursOld} (tidak berubah)`,
+    ok: upS, fail: failS
+  };
+
+  if(upS.length || kursNew){ persist(); }
+  render();
+  SYNCING = false;
+
+  if(silent) return;
+
+  if(failS.length === 0 && upS.length){
+    toast(`✓ Semua ${upS.length} harga + kurs diperbarui`);
+  }else if(upS.length){
+    toast(`⚠ ${upS.length} ok · ${failS.length} gagal: ${failS.join(", ")} — isi manual`);
+  }else{
+    toast(`✕ Auto-fetch gagal total. Update harga manual di bawah ↓`);
   }
 }
 
 /* ===== SVG charts ===== */
-function donut(items,size){ // items:[{label,val,color}]
+function donut(items,size){
   const tot=items.reduce((s,i)=>s+i.val,0)||1, R=size/2, r=R*0.62, cx=R, cy=R; let a=-Math.PI/2, segs="";
   items.forEach(it=>{ const frac=it.val/tot, a2=a+frac*2*Math.PI;
     const x1=cx+R*Math.cos(a),y1=cy+R*Math.sin(a),x2=cx+R*Math.cos(a2),y2=cy+R*Math.sin(a2);
@@ -514,7 +604,7 @@ function viewHome(){
   const conc=n.assets?n.stocks/n.assets*100:0;
   const ef=S.accounts.find(a=>a.app==="JP bank"); const efv=ef?toJ(Number(ef.amount)||0,ef.ccy):0;
   const efp=Math.max(0,Math.min(100,efv/(S.goalEmergency||1)*100));
-  
+
   let cJPY=0, cIDR=0;
   S.accounts.forEach(a=>{
     const amt = Number(a.amount)||0;
@@ -561,7 +651,7 @@ function viewHome(){
     <div class="card"><div class="k">Investments</div><div class="v">${disp(n.stocks)}</div><div class="s">${conc.toFixed(0)}% of assets</div></div>
     <div class="card"><div class="k">Cash</div><div class="v">${disp(n.cash)}</div><div class="s">across accounts</div></div>
   </div>
-  
+
   <div class="panel">
     <div class="ph"><h2>💵 Saldo Tersedia</h2><span class="lbl">Uang Tunai & Rekening</span></div>
     <div style="padding:14px 15px">
@@ -637,12 +727,42 @@ function viewInvest(){
   const items=S.holdings.map(h=>({label:h.broker+" "+h.ticker,val:holdJ(h),color:COL[Object.keys(COL)[(h.ticker.charCodeAt(0))%6]]||'#3F7DB0'}));
   const pal=["#1F5C56","#B5613A","#3F7DB0","#C7913B","#7C5BAE","#2E7D5B"];
   items.forEach((it,i)=>it.color=pal[i%pal.length]);
+
+  let logHtml = "";
+  if(S.priceLog){
+    const L=S.priceLog;
+    logHtml=`<div class="syncbar">
+      <div style="flex:1">
+        <div><b style="color:var(--ink)">Sync terakhir:</b> ${L.at}</div>
+        <div>Kurs: ${L.kurs}</div>
+        ${L.ok.length?`<div style="color:var(--in)">✓ ${L.ok.join(" · ")}</div>`:``}
+        ${L.fail.length?`<div style="color:var(--neg)">✕ Gagal: ${L.fail.join(", ")} — isi manual ↓</div>`:``}
+      </div>
+    </div>`;
+  }
+
   return `
   <div class="hero" style="background:linear-gradient(155deg,#3F7DB0,#2C5876)">
     <div class="lbl" style="color:rgba(242,238,225,.55)">Portfolio value</div>
     <div class="nw">${disp(tot)}</div>
     <div class="nw-sub">≈ ${S.viewCcy==='IDR'?yen(tot):rp(tot*S.kurs)}</div>
   </div>
+
+  <div class="panel">
+    <div class="ph"><h2>🔄 Update Harga & Kurs</h2><span class="lbl">tap to sync</span></div>
+    <div style="padding:14px 15px">
+      ${logHtml}
+      <div class="frow" style="margin-top:0">
+        <button class="fb" style="background:var(--teal);color:#fff;border-color:var(--teal)" onclick="fetchMarketData(false)">⤓ Auto-fetch semua</button>
+        <button class="fb" onclick="openPrices()">✎ Update manual</button>
+      </div>
+      <p style="font-size:10.5px;color:var(--faint);line-height:1.6;margin-top:10px;text-align:center">
+        Saham IDX kecil (BRMS/CGAS) sering gagal di auto-fetch.
+        Cara paling andal: buka Stockbit/IPOT, ketuk <b>Update manual</b>, salin harga sekali.
+      </p>
+    </div>
+  </div>
+
   <div class="panel">
     <div class="ph"><h2>Allocation</h2><span class="lbl">by holding</span></div>
     <div style="display:flex;align-items:center;gap:14px;padding:16px">
@@ -651,7 +771,7 @@ function viewInvest(){
     </div>
   </div>
   <div class="panel">
-    <div class="ph"><h2>Holdings <button class="addmini" style="display:inline;width:auto;padding:3px 8px;margin-left:8px;border:1px solid var(--line);border-radius:6px;background:var(--card2)" onclick="fetchMarketData(false)">🔄 Sinkronisasi</button></h2><span class="lbl">tap to edit</span></div>
+    <div class="ph"><h2>Holdings</h2><span class="lbl">tap to edit</span></div>
     ${S.holdings.map(h=>{const vIDR=holdVal(h),vJ=holdJ(h),gain=((h.last-h.avg)*(h.lots*100)),gp=h.avg?((h.last/h.avg-1)*100):0;
       return `<div class="hold" onclick="openHold('${h.id}')">
         <div class="hm"><div class="t">${esc(h.broker)} · ${esc(h.ticker)}</div>
@@ -660,7 +780,7 @@ function viewInvest(){
           <div class="g ${gain>=0?'gp':'gn'}">${gain>=0?'+':''}${nf(gain)} Rp · ${gp.toFixed(1)}%</div></div></div>`;}).join("")}
     <button class="addmini" onclick="openHold()">＋ ADD HOLDING</button>
   </div>
-  
+
   <div class="panel">
     <div class="ph"><h2>Cash & accounts</h2><span class="lbl">Kekayaan</span></div>
     <div style="padding:12px 14px">
@@ -679,13 +799,71 @@ function viewInvest(){
       `).join("")}
       <button class="addmini" onclick="addAcc()" style="border:1px dashed var(--line); border-radius:12px; margin-top:4px">＋ TAMBAH AKUN</button>
     </div>
-    
+
     <div class="row" style="border-top:1px solid var(--line)">
       <span class="lbl f1">Kurs · 1 ¥ = ? Rp</span>
       <input class="vv" type="number" inputmode="decimal" value="${S.kurs}" onchange="S.kurs=parseFloat(this.value)||0;persist();render()" style="border:none;background:transparent;padding:0;text-align:right">
     </div>
     <div class="tot"><span>Net worth</span><span>${disp(nw().net)}</span></div>
   </div>`;
+}
+
+/* ===== bulk price-update sheet ===== */
+function openPrices(){
+  const rows = S.holdings.map(h=>`
+    <div class="pr-row" id="prr-${h.id}">
+      <div class="pr-id">
+        <div class="t">${esc(h.broker)} · ${esc(h.ticker)}</div>
+        <div class="s">${Number(h.lots).toLocaleString("en-US",{maximumFractionDigits:4})} lot · avg ${nf(h.avg)}</div>
+      </div>
+      <div class="pr-in"><input id="pin-${h.id}" type="number" inputmode="decimal" step="any" value="${h.last}" placeholder="Rp"></div>
+      <button class="pr-fetch" onclick="fetchRow('${h.id}')">⤓</button>
+      <div class="pr-st" id="pst-${h.id}"></div>
+    </div>`).join("");
+
+  document.getElementById("sheet").innerHTML=`<div class="grip"></div>
+  <h2 style="font-family:'Bricolage Grotesque';font-weight:800;font-size:18px;margin-bottom:4px">Update Harga Saham</h2>
+  <p style="font-size:12px;color:var(--muted);margin-bottom:14px;line-height:1.55">Ketik harga terakhir (Rp) dari Stockbit/IPOT, atau ketuk ⤓ untuk coba ambil otomatis per saham. Simpan saat selesai.</p>
+  <div class="panel" style="margin-top:0"><div style="padding:4px 14px">${rows}</div></div>
+  <div class="field" style="margin-top:14px">
+    <label>Kurs · 1 ¥ = ? Rp</label>
+    <input id="pkurs" type="number" inputmode="decimal" step="any" value="${S.kurs}">
+  </div>
+  <div class="acts">
+    <button onclick="fetchAllRows()">⤓ Coba auto semua</button>
+    <button onclick="closeOv()">Batal</button>
+    <button class="save" onclick="savePrices()">Simpan</button>
+  </div>`;
+  document.getElementById("ov").classList.add("show");
+}
+
+async function fetchRow(id){
+  const h=S.holdings.find(x=>x.id===id); if(!h) return;
+  const st=el(`pst-${id}`); if(st){st.textContent="…";st.style.color="var(--muted)";}
+  const r=await fetchOnePrice(h);
+  if(r&&r.price){
+    const inp=el(`pin-${id}`); if(inp) inp.value=r.price;
+    if(st){st.textContent="✓";st.style.color="var(--in)";}
+  }else{
+    if(st){st.textContent="✕";st.style.color="var(--neg)";}
+  }
+}
+async function fetchAllRows(){
+  toast("🔄 Mencoba semua…");
+  for(const h of S.holdings){ await fetchRow(h.id); }
+  // also kurs
+  const nk=await fetchKurs(); if(nk&&el("pkurs")) el("pkurs").value=nk;
+  toast("Selesai — periksa lalu Simpan");
+}
+function savePrices(){
+  S.holdings.forEach(h=>{
+    const v=parseFloat(val(`pin-${h.id}`));
+    if(v && !isNaN(v) && v>0) h.last=v;
+  });
+  const kv=parseFloat(val("pkurs"));
+  if(kv && !isNaN(kv) && kv>0) S.kurs=kv;
+  S.priceLog={at:new Date().toLocaleString("en-GB",{day:"2-digit",month:"short",hour:"2-digit",minute:"2-digit"}),kurs:`${S.kurs} (manual)`,ok:S.holdings.map(h=>`${h.ticker}→${nf(h.last)}`),fail:[]};
+  persist();closeOv();render();toast("Harga tersimpan ✓");
 }
 
 function viewStats(){
@@ -741,7 +919,7 @@ function openTx(id){editId=id||null;const t=id?MO().tx.find(x=>x.id===id):null;t
 function drawTx(t){
   const cats=txDir==="out"?OUT_CATS:txDir==="in"?IN_CATS:TF_CATS;
   const isTf = txDir==="tf";
-  
+
   let defAc = null, defAc2 = null;
   if(!t){
     if(txDir==="out") {
@@ -754,14 +932,14 @@ function drawTx(t){
       defAc2 = S.accounts.find(a=>a.name==='Dompet')?.id;
     }
   }
-  
+
   document.getElementById("sheet").innerHTML=`<div class="grip"></div>
   <div class="seg">
     <button class="${txDir==='out'?'act outc':''}" onclick="setDir('out')">▼ Keluar</button>
     <button class="${txDir==='in'?'act inc':''}" onclick="setDir('in')">▲ Masuk</button>
     <button class="${txDir==='tf'?'act tfc':''}" onclick="setDir('tf')">⇋ Transfer</button>
   </div>
-  
+
   ${isTf ? `
   <div class="grid2" style="margin-top:0">
     <div class="field"><label>DARI Akun</label>
@@ -793,7 +971,7 @@ function drawTx(t){
     </select>
   </div>
   `}
-  
+
   ${!t&&!isTf?`<div class="field"><label>Quick add</label><div class="chips">${QUICK.filter(q=>q.dir===txDir).map((q,i)=>`<button class="chip q" onclick="quick(${i})">${q.l}</button>`).join("")}</div></div>`:""}
   <div class="field"><label>Keterangan</label><input id="desc" placeholder="e.g. ${isTf?'Tarik tunai':'Tsuruha'}" value="${t?esc(t.desc):''}"></div>
   <div class="field"><label>Kategori</label><div class="chips" id="cc">${cats.map(k=>`<button class="chip ${txCat===k?'act':''}" onclick="setCat('${k}')">${k}</button>`).join("")}</div></div>
@@ -812,12 +990,12 @@ function setDir(d){
   let ac=val("txAcc"),ac2=val("txAcc2");
 
   if(!t && oldDir !== d){
-    if(d==='tf') { 
-      const y = S.accounts.find(x=>x.name==='Yuchou'); if(y) ac=y.id; 
-      const dm = S.accounts.find(x=>x.name==='Dompet'); if(dm) ac2=dm.id; 
-    } else if(d==='in') { 
-      const y = S.accounts.find(x=>x.name==='Yuchou'); if(y) ac=y.id; 
-    } else if(d==='out') { 
+    if(d==='tf') {
+      const y = S.accounts.find(x=>x.name==='Yuchou'); if(y) ac=y.id;
+      const dm = S.accounts.find(x=>x.name==='Dompet'); if(dm) ac2=dm.id;
+    } else if(d==='in') {
+      const y = S.accounts.find(x=>x.name==='Yuchou'); if(y) ac=y.id;
+    } else if(d==='out') {
       ac = S.lastOutAccId;
       if(!S.accounts.find(x=>x.id===ac)) {
          const dm = S.accounts.find(x=>x.name==='Dompet'); if(dm) ac=dm.id;
