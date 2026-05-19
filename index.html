@@ -126,15 +126,15 @@
   .addmini:active{background:var(--line)}
 
   /* ===== Update-prices sheet rows ===== */
-  .pr-row{display:flex;align-items:center;gap:10px;padding:12px 4px;border-bottom:1px solid var(--line)}
+  .pr-row{display:flex;align-items:center;gap:7px;padding:12px 2px;border-bottom:1px solid var(--line);flex-wrap:wrap}
   .pr-row:last-of-type{border-bottom:none}
-  .pr-id{flex:1;min-width:0}
+  .pr-id{flex:1 1 100%;min-width:0;margin-bottom:2px}
   .pr-id .t{font-weight:600;font-size:14px}
   .pr-id .s{font-family:'Spline Sans Mono';font-size:10px;color:var(--muted);margin-top:2px}
-  .pr-in{width:104px}
-  .pr-in input{width:100%;text-align:right;font-family:'Spline Sans Mono';font-weight:600;font-size:15px;padding:9px 8px}
-  .pr-st{width:20px;flex:0 0 auto;text-align:center;font-size:13px}
-  .pr-fetch{flex:0 0 auto;border:1px solid var(--line2);background:var(--card);border-radius:9px;padding:8px 10px;font-family:'Spline Sans Mono';font-size:11px;color:var(--muted);cursor:pointer}
+  .pr-in{flex:1 1 auto;min-width:90px}
+  .pr-in input{width:100%;text-align:right;font-family:'Spline Sans Mono';font-weight:600;font-size:16px;padding:10px 8px}
+  .pr-st{width:18px;flex:0 0 auto;text-align:center;font-size:13px}
+  .pr-fetch{flex:0 0 auto;border:1px solid var(--line2);background:var(--card);border-radius:9px;padding:9px 11px;font-family:'Spline Sans Mono';font-size:11px;color:var(--muted);cursor:pointer}
   .pr-fetch:active{background:var(--line2)}
   .syncbar{display:flex;gap:8px;align-items:center;background:var(--card2);border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin:4px 0 12px;font-family:'Spline Sans Mono';font-size:11px;color:var(--muted);line-height:1.5}
 
@@ -273,7 +273,7 @@ initPin();
 
 /* ===== storage: Google Sheets API & localStorage Backup ===== */
 const KEY="buku-kas-app-v1";
-const API_URL = "https://script.google.com/macros/s/AKfycbwALUTZ_b5PuBRmRYZzFo27wGJNBV5lMEKDlgnOA19Efv-bE9xvFGzg6tfLWs-FvilR/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbxcUFUFCfkZXwaXkMwwz8ZoBFZ-1mbm4i_2uPwOtbTv6O8AiqRWjuKUnA2_jIuFJYwT/exec";
 
 const STORE = {
   get: async (k) => {
@@ -420,13 +420,40 @@ function toast(t){const e=document.getElementById("toast");e.textContent=t;e.cla
    as success unless a price actually changed/was confirmed.
 */
 
+/* OPTIONAL: your own Google Apps Script proxy. This is the ONLY
+   reliable route for IDX small-caps. To enable, see SETUP_PROXY
+   instructions: paste the doGet snippet into your Apps Script,
+   redeploy, and the existing API_URL is reused automatically.
+   Until then the app silently falls back to public proxies. */
+const USE_APPS_SCRIPT_PROXY = true; // app auto-detects if it works
+
 const PROXIES = [
   (url)=>`https://api.allorigins.win/raw?url=${encodeURIComponent(url)}&_=${Date.now()}`,
   (url)=>`https://corsproxy.io/?url=${encodeURIComponent(url)}`,
   (url)=>`https://thingproxy.freeboard.io/fetch/${url}`,
 ];
 
+// Route a fetch through your own Apps Script (?proxy=<url>) — no CORS,
+// no third-party rate limits. Returns null if not configured/working.
+async function tryAppsScriptProxy(targetUrl){
+  if(!USE_APPS_SCRIPT_PROXY || !API_URL) return null;
+  try{
+    const u = API_URL + (API_URL.includes("?")?"&":"?") + "proxy=" + encodeURIComponent(targetUrl) + "&_=" + Date.now();
+    const res = await fetch(u, {cache:"no-store"});
+    if(!res.ok) return null;
+    const txt = await res.text();
+    // If the script isn't updated it returns the stored JSON blob,
+    // not the proxied page — guard against that false positive.
+    if(txt && txt.length > 5 && txt.indexOf("buku-kas")===-1 && txt.indexOf('"holdings"')===-1) return txt;
+  }catch(e){}
+  return null;
+}
+
 async function tryFetchText(targetUrl){
+  // 1. Your own Apps Script proxy first (reliable when set up)
+  const viaScript = await tryAppsScriptProxy(targetUrl);
+  if(viaScript) return viaScript;
+  // 2. Fall back to public CORS proxies (flaky)
   for(const mk of PROXIES){
     try{
       const res = await fetch(mk(targetUrl), {cache:"no-store"});
@@ -435,6 +462,21 @@ async function tryFetchText(targetUrl){
       if(txt && txt.length > 5) return txt;
     }catch(e){ /* try next proxy */ }
   }
+  return null;
+}
+
+// Source 0: Yahoo Finance quote API — most reliable for .JK tickers
+async function fetchYahoo(ticker){
+  const t = ticker.toUpperCase().replace('.JK','').trim() + '.JK';
+  const url = `https://query1.finance.yahoo.com/v8/finance/chart/${t}?interval=1d&range=1d`;
+  const txt = await tryFetchText(url);
+  if(!txt) return null;
+  try{
+    const j = JSON.parse(txt);
+    const r = j && j.chart && j.chart.result && j.chart.result[0];
+    const p = r && r.meta && (r.meta.regularMarketPrice || r.meta.previousClose);
+    if(p && !isNaN(p) && p > 0) return parseFloat(p);
+  }catch(e){}
   return null;
 }
 
@@ -472,7 +514,9 @@ async function fetchGoogle(ticker){
 }
 
 async function fetchOnePrice(h){
-  let p = await fetchStooq(h.ticker);
+  let p = await fetchYahoo(h.ticker);
+  if(p) return {price:p, src:"yahoo"};
+  p = await fetchStooq(h.ticker);
   if(p) return {price:p, src:"stooq"};
   p = await fetchGoogle(h.ticker);
   if(p) return {price:p, src:"google"};
@@ -497,20 +541,58 @@ async function fetchKurs(){
   return null;
 }
 
+/* PRIMARY SOURCE: Google Sheet GOOGLEFINANCE via your Apps Script.
+   One request returns kurs + all prices Google can resolve, plus a
+   "missing" list of tickers it couldn't price (kept on manual value). */
+async function fetchSheetPrices(){
+  if(!API_URL) return null;
+  try{
+    const tk = [...new Set(S.holdings.map(h=>String(h.ticker||'').toUpperCase().replace('.JK','').trim()).filter(Boolean))];
+    const u = API_URL + (API_URL.includes("?")?"&":"?") + "prices=1&tickers=" + encodeURIComponent(tk.join(",")) + "&_=" + Date.now();
+    const res = await fetch(u, {cache:"no-store"});
+    if(!res.ok) return null;
+    const txt = await res.text();
+    const j = JSON.parse(txt);
+    // Must look like the price payload, not the stored data blob
+    if(j && typeof j === "object" && ("prices" in j)) return j;
+  }catch(e){ /* not set up yet, or N/A — fall through */ }
+  return null;
+}
+
 let SYNCING=false;
 async function fetchMarketData(silent=false){
   if(SYNCING){ if(!silent) toast("Sinkronisasi sedang berjalan…"); return; }
   SYNCING = true;
   if(!silent) toast("🔄 Mengambil harga pasar…");
 
-  let kursOld = S.kurs, kursNew = null, upS = [], failS = [];
+  let kursOld = S.kurs, kursNew = null, upS = [], failS = [], src = "scrape";
 
-  // 1) Exchange rate
-  const nk = await fetchKurs();
-  if(nk && nk > 0){ kursNew = nk; if(nk !== S.kurs) S.kurs = nk; }
+  // 0) PRIMARY: GOOGLEFINANCE through your own Google Sheet
+  const sheet = await fetchSheetPrices();
+  const handled = {};
+  if(sheet){
+    src = "sheet";
+    if(sheet.kurs && sheet.kurs > 0){ kursNew = sheet.kurs; if(sheet.kurs !== S.kurs) S.kurs = sheet.kurs; }
+    S.holdings.forEach(h=>{
+      const key = String(h.ticker||'').toUpperCase().replace('.JK','').trim();
+      const p = sheet.prices ? sheet.prices[key] : null;
+      if(p && p > 0){
+        if(h.last !== p) h.last = p;
+        upS.push(`${h.ticker}→${nf(p)} (GF)`);
+        handled[h.id] = true;
+      }
+    });
+  }
 
-  // 2) Prices — sequential so we don't hammer the proxies
+  // 1) Exchange rate fallback (only if sheet didn't give one)
+  if(kursNew === null){
+    const nk = await fetchKurs();
+    if(nk && nk > 0){ kursNew = nk; if(nk !== S.kurs) S.kurs = nk; }
+  }
+
+  // 2) Per-ticker scrape ONLY for holdings the sheet couldn't price
   for(const h of S.holdings){
+    if(handled[h.id]) continue;
     try{
       const r = await fetchOnePrice(h);
       if(r && r.price){
@@ -527,7 +609,8 @@ async function fetchMarketData(silent=false){
   S.priceLog = {
     at: stamp,
     kurs: kursNew ? `${kursOld}→${kursNew}` : `${kursOld} (tidak berubah)`,
-    ok: upS, fail: failS
+    ok: upS, fail: failS,
+    via: src === "sheet" ? "Google Sheet (GOOGLEFINANCE)" : "scrape fallback"
   };
 
   if(upS.length || kursNew){ persist(); }
@@ -537,11 +620,11 @@ async function fetchMarketData(silent=false){
   if(silent) return;
 
   if(failS.length === 0 && upS.length){
-    toast(`✓ Semua ${upS.length} harga + kurs diperbarui`);
+    toast(`✓ Semua ${upS.length} harga + kurs diperbarui via Sheet`);
   }else if(upS.length){
-    toast(`⚠ ${upS.length} ok · ${failS.length} gagal: ${failS.join(", ")} — isi manual`);
+    toast(`⚠ ${upS.length} ok · ${failS.length} perlu manual: ${failS.join(", ")}`);
   }else{
-    toast(`✕ Auto-fetch gagal total. Update harga manual di bawah ↓`);
+    toast(`✕ Auto gagal. Cek setup Apps Script, atau update manual ↓`);
   }
 }
 
@@ -733,7 +816,7 @@ function viewInvest(){
     const L=S.priceLog;
     logHtml=`<div class="syncbar">
       <div style="flex:1">
-        <div><b style="color:var(--ink)">Sync terakhir:</b> ${L.at}</div>
+        <div><b style="color:var(--ink)">Sync terakhir:</b> ${L.at}${L.via?` · <span style="color:var(--faint)">${L.via}</span>`:``}</div>
         <div>Kurs: ${L.kurs}</div>
         ${L.ok.length?`<div style="color:var(--in)">✓ ${L.ok.join(" · ")}</div>`:``}
         ${L.fail.length?`<div style="color:var(--neg)">✕ Gagal: ${L.fail.join(", ")} — isi manual ↓</div>`:``}
@@ -809,21 +892,31 @@ function viewInvest(){
 }
 
 /* ===== bulk price-update sheet ===== */
+// Uniq ticker list so opening broker pages doesn't duplicate (BRMS held twice)
+function uniqTickers(){ return [...new Set(S.holdings.map(h=>h.ticker.toUpperCase()))]; }
+
 function openPrices(){
-  const rows = S.holdings.map(h=>`
+  const rows = S.holdings.map(h=>{
+    const sym = h.ticker.toUpperCase().replace('.JK','');
+    const link = `https://stockbit.com/symbol/${sym}`;
+    return `
     <div class="pr-row" id="prr-${h.id}">
       <div class="pr-id">
         <div class="t">${esc(h.broker)} · ${esc(h.ticker)}</div>
         <div class="s">${Number(h.lots).toLocaleString("en-US",{maximumFractionDigits:4})} lot · avg ${nf(h.avg)}</div>
       </div>
+      <a href="${link}" target="_blank" rel="noopener" class="pr-fetch" style="text-decoration:none;color:var(--blue);border-color:rgba(63,125,176,.4)">↗ ${sym}</a>
       <div class="pr-in"><input id="pin-${h.id}" type="number" inputmode="decimal" step="any" value="${h.last}" placeholder="Rp"></div>
       <button class="pr-fetch" onclick="fetchRow('${h.id}')">⤓</button>
       <div class="pr-st" id="pst-${h.id}"></div>
-    </div>`).join("");
+    </div>`;}).join("");
 
   document.getElementById("sheet").innerHTML=`<div class="grip"></div>
   <h2 style="font-family:'Bricolage Grotesque';font-weight:800;font-size:18px;margin-bottom:4px">Update Harga Saham</h2>
-  <p style="font-size:12px;color:var(--muted);margin-bottom:14px;line-height:1.55">Ketik harga terakhir (Rp) dari Stockbit/IPOT, atau ketuk ⤓ untuk coba ambil otomatis per saham. Simpan saat selesai.</p>
+  <p style="font-size:12px;color:var(--muted);margin-bottom:12px;line-height:1.55">
+    <b style="color:var(--ink)">Cara andal (15 detik):</b> ketuk <b style="color:var(--blue)">↗ TICKER</b> untuk buka harga di Stockbit, lihat angkanya, ketik di kolom, Simpan.<br>
+    <span style="color:var(--faint)">⤓ = coba auto-fetch (sering gagal untuk saham IDX kecil — itu wajar).</span>
+  </p>
   <div class="panel" style="margin-top:0"><div style="padding:4px 14px">${rows}</div></div>
   <div class="field" style="margin-top:14px">
     <label>Kurs · 1 ¥ = ? Rp</label>
@@ -833,7 +926,17 @@ function openPrices(){
     <button onclick="fetchAllRows()">⤓ Coba auto semua</button>
     <button onclick="closeOv()">Batal</button>
     <button class="save" onclick="savePrices()">Simpan</button>
-  </div>`;
+  </div>
+  <details style="margin-top:12px" open><summary>⚙ AKTIFKAN AUTO-FETCH via GOOGLEFINANCE (sekali setup)</summary>
+    <div style="background:var(--card2);border:1px solid var(--line);border-radius:12px;padding:14px;font-size:11.5px;color:var(--muted);line-height:1.7">
+      Cara terbaik: pakai <b>=GOOGLEFINANCE</b> di Google Sheet Anda sendiri. Berjalan di server Google — tanpa CORS, tanpa proxy publik.<br><br>
+      1. Buka <b>script.google.com</b> → proyek Buku Kas Anda.<br>
+      2. <b>Hapus semua kode lama</b>, ganti dengan isi file <code>AppsScript-Code.gs</code> yang diberikan.<br>
+      3. <b>Deploy → Manage deployments → Edit (pensil) → Version: New version → Deploy.</b> URL <code>/exec</code> tetap sama.<br>
+      4. Selesai. App otomatis pakai rute ini. Saham yang GOOGLEFINANCE tidak bisa harga (sering BRMS/CGAS/AADI) akan tetap pakai nilai manual Anda — tidak ditimpa nol.<br><br>
+      <span style="color:var(--faint)">Tip: di Apps Script, jalankan fungsi <code>testPrices</code> sekali lalu lihat Execution log — itu menunjukkan ticker mana yang perlu manual.</span>
+    </div>
+  </details>`;
   document.getElementById("ov").classList.add("show");
 }
 
