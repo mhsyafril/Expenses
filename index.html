@@ -12,7 +12,6 @@
 <link rel="manifest" href='data:application/json,{"name":"Buku Kas","short_name":"BukuKas","start_url":".","display":"standalone","background_color":"%23F3EFE3","theme_color":"%231F5C56","icons":[{"src":"data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%27192%27 height=%27192%27%3E%3Crect width=%27192%27 height=%27192%27 rx=%2742%27 fill=%27%231F5C56%27/%3E%3Ctext x=%2796%27 y=%27128%27 font-size=%2790%27 font-family=%27Georgia%27 fill=%27%23F3EFE3%27 text-anchor=%27middle%27%3ERp%3C/text%3E%3C/svg%3E","sizes":"192x192","type":"image/svg+xml"}]}'/>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Figtree:wght@400;500;600&family=Spline+Sans+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-<!-- CryptoJS Library for E2E Encryption -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
 <style>
   :root{
@@ -23,17 +22,23 @@
   }
   *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
   html,body{background:var(--bg);color:var(--ink);font-family:'Figtree',system-ui,sans-serif;overscroll-behavior:none}
-  body{padding:0 0 calc(72px + env(safe-area-inset-bottom))}
+  
+  /* FIXED: Menambahkan env(safe-area-inset-top) agar aman dari notch iPhone */
+  body{padding:env(safe-area-inset-top) 0 calc(72px + env(safe-area-inset-bottom))}
+  
   .wrap{max-width:560px;margin:0 auto;padding:0 15px}
   .mono{font-family:'Spline Sans Mono',ui-monospace,monospace;font-variant-numeric:tabular-nums}
   .dsp{font-family:'Bricolage Grotesque',sans-serif}
   .lbl{font-family:'Spline Sans Mono',monospace;font-size:9.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted)}
 
   /* ===== PIN Screen CSS ===== */
+  /* FIXED: Memberikan padding top/bottom untuk area aman di layar PIN */
   .pin-screen {
     position: fixed; inset: 0; z-index: 9999; background: rgba(242,238,225,0.98);
     backdrop-filter: blur(10px); display: flex; flex-direction: column;
-    align-items: center; justify-content: center; padding: 20px; transition: 0.3s;
+    align-items: center; justify-content: center; 
+    padding: calc(20px + env(safe-area-inset-top)) 20px calc(20px + env(safe-area-inset-bottom)); 
+    transition: 0.3s;
   }
   .pin-screen.hidden { opacity: 0; pointer-events: none; visibility: hidden; }
   .pin-display {
@@ -160,7 +165,8 @@
   .fab{position:fixed;right:18px;bottom:calc(78px + env(safe-area-inset-bottom));z-index:41;width:56px;height:56px;border-radius:18px;background:var(--teal);color:#fff;border:none;font-size:26px;box-shadow:0 8px 20px rgba(31,92,86,.4);display:flex;align-items:center;justify-content:center;cursor:pointer}
   .fab:active{transform:scale(.94)}
 
-  .ov{position:fixed;inset:0;background:rgba(20,22,18,.45);z-index:50;display:none;align-items:flex-end;justify-content:center}
+  /* FIXED: Menambahkan padding top agar Pop-up Sheet juga aman dari notch */
+  .ov{position:fixed;inset:0;background:rgba(20,22,18,.45);z-index:50;display:none;align-items:flex-end;justify-content:center;padding-top:env(safe-area-inset-top)}
   .ov.show{display:flex}
   .sheet{width:100%;max-width:560px;background:var(--bg);border-radius:22px 22px 0 0;padding:16px 16px calc(18px + env(safe-area-inset-bottom));max-height:92vh;overflow-y:auto;animation:up .25s cubic-bezier(.2,.7,.2,1)}
   @keyframes up{from{transform:translateY(40px);opacity:.5}to{transform:none;opacity:1}}
@@ -197,7 +203,6 @@
 </head>
 <body>
 
-<!-- PIN Screen Layer -->
 <div id="pinScreen" class="pin-screen hidden">
   <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color:var(--teal);margin-bottom:16px"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
   <h2 id="pinTitle" style="font-family:'Bricolage Grotesque';font-weight:800;font-size:22px;margin-bottom:8px">Buku Kas Terkunci</h2>
