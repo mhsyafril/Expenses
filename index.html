@@ -12,6 +12,8 @@
 <link rel="manifest" href='data:application/json,{"name":"Buku Kas","short_name":"BukuKas","start_url":".","display":"standalone","background_color":"%23F3EFE3","theme_color":"%231F5C56","icons":[{"src":"data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%27192%27 height=%27192%27%3E%3Crect width=%27192%27 height=%27192%27 rx=%2742%27 fill=%27%231F5C56%27/%3E%3Ctext x=%2796%27 y=%27128%27 font-size=%2790%27 font-family=%27Georgia%27 fill=%27%23F3EFE3%27 text-anchor=%27middle%27%3ERp%3C/text%3E%3C/svg%3E","sizes":"192x192","type":"image/svg+xml"}]}'/>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Figtree:wght@400;500;600&family=Spline+Sans+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<!-- CryptoJS Library for E2E Encryption -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
 <style>
   :root{
     --bg:#F2EEE1;--card:#FBF8EF;--card2:#F4EFE0;--line:#E2DBC4;--line2:#CFC6A8;
@@ -48,7 +50,7 @@
     margin: 0 auto; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.04);
   }
   .pin-btn:active { background: var(--line2); transform: scale(0.95); }
-  .pin-msg { color: var(--neg); font-size: 13px; font-family: 'Spline Sans Mono'; min-height: 20px; margin-bottom: 24px; font-weight: 600; }
+  .pin-msg { color: var(--neg); font-size: 13px; font-family: 'Spline Sans Mono'; min-height: 20px; margin-bottom: 24px; font-weight: 600; text-align:center; line-height: 1.5; }
 
   /* ===== Main App CSS ===== */
   header{padding:18px 0 4px;display:flex;align-items:center;justify-content:space-between}
@@ -196,10 +198,10 @@
 <body>
 
 <!-- PIN Screen Layer -->
-<div id="pinScreen" class="pin-screen">
+<div id="pinScreen" class="pin-screen hidden">
   <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color:var(--teal);margin-bottom:16px"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
-  <h2 style="font-family:'Bricolage Grotesque';font-weight:800;font-size:22px;margin-bottom:8px">Buku Kas Terkunci</h2>
-  <p style="color:var(--muted);font-size:14px;margin-bottom:30px">Device baru. Masukkan PIN Anda.</p>
+  <h2 id="pinTitle" style="font-family:'Bricolage Grotesque';font-weight:800;font-size:22px;margin-bottom:8px">Buku Kas Terkunci</h2>
+  <p id="pinSub" style="color:var(--muted);font-size:14px;margin-bottom:30px;text-align:center">Device baru. Masukkan PIN Anda.</p>
 
   <div id="pinDisplay" class="pin-display"></div>
   <div id="pinMsg" class="pin-msg"></div>
@@ -220,60 +222,23 @@
   </div>
 </div>
 
-<div class="wrap" id="app"><div class="loading">Loading Buku Kas…</div></div>
+<div class="wrap" id="app"><div class="loading">Memuat & Sinkronisasi Keamanan…</div></div>
 <button class="fab" id="fab" onclick="openTx()" style="display:none">＋</button>
 <nav class="nav" id="nav" style="display:none"></nav>
 <div class="ov" id="ov"><div class="sheet" id="sheet"></div></div>
 <div class="toast" id="toast"></div>
 
 <script>
-/* ===== PIN Authentication ===== */
-const APP_PIN = "130700";
-let currentPin = "";
-
-function initPin() {
-  if (localStorage.getItem("device_authorized") === "true") {
-    document.getElementById("pinScreen").classList.add("hidden");
-  }
-}
-
-function addPin(n) {
-  if (currentPin.length < 6) currentPin += n;
-  updatePinDisplay();
-  if (currentPin.length === 6) setTimeout(checkPin, 150);
-}
-
-function delPin() {
-  currentPin = currentPin.slice(0, -1);
-  updatePinDisplay();
-  document.getElementById("pinMsg").textContent = "";
-}
-
-function updatePinDisplay() {
-  document.getElementById("pinDisplay").textContent = "•".repeat(currentPin.length);
-}
-
-function checkPin() {
-  if (currentPin === APP_PIN) {
-    localStorage.setItem("device_authorized", "true");
-    document.getElementById("pinScreen").classList.add("hidden");
-    currentPin = "";
-  } else {
-    document.getElementById("pinMsg").textContent = "PIN Salah! Coba lagi.";
-    currentPin = "";
-    updatePinDisplay();
-    const scr = document.getElementById("pinScreen");
-    scr.style.transform = "translateX(10px)";
-    setTimeout(() => scr.style.transform = "translateX(-10px)", 50);
-    setTimeout(() => scr.style.transform = "translateX(0)", 100);
-  }
-}
-
-initPin();
-
-/* ===== storage: Google Sheets API & localStorage Backup ===== */
+/* ===== E2E Encryption & Storage Backend ===== */
 const KEY="buku-kas-app-v1";
 const API_URL = "https://script.google.com/macros/s/AKfycbxcUFUFCfkZXwaXkMwwz8ZoBFZ-1mbm4i_2uPwOtbTv6O8AiqRWjuKUnA2_jIuFJYwT/exec";
+
+// Local state for E2EE
+let currentPin = localStorage.getItem("app_key") || "";
+let inputPin = "";
+let rawCipher = null;
+let isNewUser = false;
+let isUnencryptedMigration = false;
 
 const STORE = {
   get: async (k) => {
@@ -282,26 +247,87 @@ const STORE = {
       const text = await res.text();
       return text && text.length > 2 ? text : null;
     } catch(e) {
-      console.error("Gagal memuat dari cloud, memuat dari local:", e);
       return localStorage.getItem(k);
     }
   },
-
   set: async (k, v) => {
     try {
-      await fetch(API_URL, {
-        method: "POST",
-        body: v,
-        headers: { "Content-Type": "text/plain" }
-      });
+      await fetch(API_URL, { method: "POST", body: v, headers: { "Content-Type": "text/plain" }});
       localStorage.setItem(k, v);
     } catch(e) {
-      console.error("Gagal menyimpan ke cloud, menyimpan di local:", e);
       localStorage.setItem(k, v);
     }
   }
 };
 
+// PIN Input Logic
+function addPin(n) {
+  if (inputPin.length < 6) inputPin += n;
+  updatePinDisplay();
+  if (inputPin.length === 6) setTimeout(checkPin, 150);
+}
+function delPin() {
+  inputPin = inputPin.slice(0, -1);
+  updatePinDisplay();
+  if (isNewUser) document.getElementById("pinMsg").textContent = "PIN ini tidak bisa di-reset. Jangan sampai lupa!";
+  else document.getElementById("pinMsg").textContent = "";
+}
+function updatePinDisplay() {
+  document.getElementById("pinDisplay").textContent = "•".repeat(inputPin.length);
+}
+
+function tryDecrypt(pinStr) {
+   try {
+      const bytes = CryptoJS.AES.decrypt(rawCipher, pinStr);
+      const txt = bytes.toString(CryptoJS.enc.Utf8);
+      if(!txt) return false;
+      const parsed = JSON.parse(txt);
+      if (parsed && parsed.months) { 
+         S = parsed;
+         S.viewCcy = S.viewCcy || "JPY";
+         return true;
+      }
+   } catch(e) {}
+   return false;
+}
+
+function checkPin() {
+  if (isNewUser) {
+    currentPin = inputPin;
+    localStorage.setItem("app_key", currentPin);
+    
+    if (!isUnencryptedMigration) {
+       S = DEFAULTS();
+    }
+    
+    // First persist will encrypt using the newly set currentPin
+    persist(); 
+    startApp();
+  } else {
+    if (tryDecrypt(inputPin)) {
+      currentPin = inputPin;
+      localStorage.setItem("app_key", currentPin);
+      startApp();
+    } else {
+      document.getElementById("pinMsg").textContent = "PIN Salah! Gagal mendekripsi data.";
+      inputPin = "";
+      updatePinDisplay();
+      const scr = document.getElementById("pinScreen");
+      scr.style.transform = "translateX(10px)";
+      setTimeout(() => scr.style.transform = "translateX(-10px)", 50);
+      setTimeout(() => scr.style.transform = "translateX(0)", 100);
+    }
+  }
+}
+
+function startApp() {
+  document.getElementById("pinScreen").classList.add("hidden");
+  render();
+  const p=el("savePill");if(p){p.textContent="saved";p.classList.add("on");}
+  fetchMarketData(true);
+}
+
+/* ===== APP CONSTANTS & DEFAULTS ===== */
 const OUT_CATS=["Groceries","Eating-Out","Shopping","Utilities","Saham","Other"];
 const IN_CATS=["Income","Saham","Other"];
 const TF_CATS=["Transfer"];
@@ -318,7 +344,6 @@ const QUICK=[
 const MK=(y,m)=>y+"-"+String(m).padStart(2,"0");
 const u=()=>Math.random().toString(36).slice(2,9);
 
-// Data sesuai CSV yang diunggah: 18 Mei 2026
 function DEFAULTS(){
   const m = "2026-05";
   const aY = u(), aB = u(), aI = u(), aS = u(), aD = u(), aP = u(), aJ = u();
@@ -362,7 +387,6 @@ const k1=n=>{n=Math.round(n);return Math.abs(n)>=1e6?(n/1e6).toFixed(2)+"M":Math
 const yen=n=>"¥"+nf(n);
 const rp=n=>"Rp"+nf(n);
 
-// DYNAMIC FORMATTER (YEN ↔ IDR)
 const disp=(j,prefix=true)=>{
   const isIDR = (S.viewCcy==="IDR");
   const v = isIDR ? j*(S.kurs||1) : j;
@@ -385,7 +409,7 @@ function calc(k){const m=MO(k);let bal=m.start||0,inT=0,outT=0;const cats={};
   });
   return {bal,inT,outT,cats};}
 const toJ=(a,c)=>c==="JPY"?a:a/(S.kurs||1);
-function holdVal(h){return (Number(h.lots)||0)*100*(Number(h.last)||0);} // IDR
+function holdVal(h){return (Number(h.lots)||0)*100*(Number(h.last)||0);} 
 function holdJ(h){return holdVal(h)/(S.kurs||1);}
 function nw(){
   let cash=0,debt=0;
@@ -401,40 +425,26 @@ function persist(){
   if(p){p.textContent="syncing ☁️...";p.classList.remove("on");}
   clearTimeout(saveT);
   saveT=setTimeout(async()=>{
-    await STORE.set(KEY,JSON.stringify(S));
-    if(p){p.textContent="synced ✓";p.classList.add("on");}
+    // ENCRYPT THE DATA BEFORE SAVING
+    const cipherText = CryptoJS.AES.encrypt(JSON.stringify(S), currentPin).toString();
+    await STORE.set(KEY, cipherText);
+    
+    if(p){p.textContent="E2EE synced ✓";p.classList.add("on");}
   }, 1000);
 }
-async function load(){const v=await STORE.get(KEY);if(v){try{S=Object.assign(DEFAULTS(),JSON.parse(v));S.viewCcy=S.viewCcy||"JPY";}catch(e){}}}
+
 function toast(t){const e=document.getElementById("toast");e.textContent=t;e.classList.add("show");clearTimeout(e._h);e._h=setTimeout(()=>e.classList.remove("show"),3200);}
 
 /* ============================================================
    ===== ROBUST MARKET DATA  (multi-source, honest status) =====
-   ============================================================
-   Strategy per ticker, in order until one returns a sane price:
-     1. Stooq CSV   (IDX tickers as TICKER.JK) — clean CSV, no
-        fragile HTML class names. Tried via 2 CORS proxies.
-     2. Google Finance HTML scrape (TICKER:IDX) — original method,
-        kept only as a last-resort fallback, with 2 proxies.
-   Every holding gets a status: 'ok' | 'fail'. Nothing is reported
-   as success unless a price actually changed/was confirmed.
-*/
-
-/* OPTIONAL: your own Google Apps Script proxy. This is the ONLY
-   reliable route for IDX small-caps. To enable, see SETUP_PROXY
-   instructions: paste the doGet snippet into your Apps Script,
-   redeploy, and the existing API_URL is reused automatically.
-   Until then the app silently falls back to public proxies. */
-const USE_APPS_SCRIPT_PROXY = true; // app auto-detects if it works
-
+   ============================================================ */
+const USE_APPS_SCRIPT_PROXY = true; 
 const PROXIES = [
   (url)=>`https://api.allorigins.win/raw?url=${encodeURIComponent(url)}&_=${Date.now()}`,
   (url)=>`https://corsproxy.io/?url=${encodeURIComponent(url)}`,
   (url)=>`https://thingproxy.freeboard.io/fetch/${url}`,
 ];
 
-// Route a fetch through your own Apps Script (?proxy=<url>) — no CORS,
-// no third-party rate limits. Returns null if not configured/working.
 async function tryAppsScriptProxy(targetUrl){
   if(!USE_APPS_SCRIPT_PROXY || !API_URL) return null;
   try{
@@ -442,30 +452,25 @@ async function tryAppsScriptProxy(targetUrl){
     const res = await fetch(u, {cache:"no-store"});
     if(!res.ok) return null;
     const txt = await res.text();
-    // If the script isn't updated it returns the stored JSON blob,
-    // not the proxied page — guard against that false positive.
     if(txt && txt.length > 5 && txt.indexOf("buku-kas")===-1 && txt.indexOf('"holdings"')===-1) return txt;
   }catch(e){}
   return null;
 }
 
 async function tryFetchText(targetUrl){
-  // 1. Your own Apps Script proxy first (reliable when set up)
   const viaScript = await tryAppsScriptProxy(targetUrl);
   if(viaScript) return viaScript;
-  // 2. Fall back to public CORS proxies (flaky)
   for(const mk of PROXIES){
     try{
       const res = await fetch(mk(targetUrl), {cache:"no-store"});
       if(!res.ok) continue;
       const txt = await res.text();
       if(txt && txt.length > 5) return txt;
-    }catch(e){ /* try next proxy */ }
+    }catch(e){}
   }
   return null;
 }
 
-// Source 0: Yahoo Finance quote API — most reliable for .JK tickers
 async function fetchYahoo(ticker){
   const t = ticker.toUpperCase().replace('.JK','').trim() + '.JK';
   const url = `https://query1.finance.yahoo.com/v8/finance/chart/${t}?interval=1d&range=1d`;
@@ -480,13 +485,11 @@ async function fetchYahoo(ticker){
   return null;
 }
 
-// Source 1: Stooq CSV. e.g. https://stooq.com/q/l/?s=brms.jk&f=sd2t2ohlcv&h&e=csv
 async function fetchStooq(ticker){
   const sym = ticker.toLowerCase().replace('.jk','') + '.jk';
   const url = `https://stooq.com/q/l/?s=${sym}&f=sd2t2ohlcv&h&e=csv`;
   const txt = await tryFetchText(url);
   if(!txt) return null;
-  // CSV: Symbol,Date,Time,Open,High,Low,Close,Volume
   const lines = txt.trim().split(/\r?\n/);
   if(lines.length < 2) return null;
   const cells = lines[1].split(',');
@@ -495,14 +498,12 @@ async function fetchStooq(ticker){
   return null;
 }
 
-// Source 2: Google Finance HTML scrape (original method, hardened)
 async function fetchGoogle(ticker){
   const t = ticker.toUpperCase().replace('.JK','').trim();
   const gf = t.length === 4 ? t + ":IDX" : t;
   const url = `https://www.google.com/finance/quote/${gf}`;
   const html = await tryFetchText(url);
   if(!html) return null;
-  // Try a couple of patterns in case Google's class names shift
   let m = html.match(/data-last-price="([0-9.]+)"/);
   if(!m) m = html.match(/class="YMlKec fxKbKc"[^>]*>([^<]+)</);
   if(!m) return null;
@@ -533,7 +534,6 @@ async function fetchKurs(){
       }
     }
   }catch(e){}
-  // fallback proxy: Frankfurter
   try{
     const res = await fetch("https://api.frankfurter.app/latest?from=JPY&to=IDR&_="+Date.now(),{cache:"no-store"});
     if(res.ok){ const d=await res.json(); if(d&&d.rates&&d.rates.IDR) return parseFloat(d.rates.IDR.toFixed(2)); }
@@ -541,9 +541,6 @@ async function fetchKurs(){
   return null;
 }
 
-/* PRIMARY SOURCE: Google Sheet GOOGLEFINANCE via your Apps Script.
-   One request returns kurs + all prices Google can resolve, plus a
-   "missing" list of tickers it couldn't price (kept on manual value). */
 async function fetchSheetPrices(){
   if(!API_URL) return null;
   try{
@@ -553,9 +550,8 @@ async function fetchSheetPrices(){
     if(!res.ok) return null;
     const txt = await res.text();
     const j = JSON.parse(txt);
-    // Must look like the price payload, not the stored data blob
     if(j && typeof j === "object" && ("prices" in j)) return j;
-  }catch(e){ /* not set up yet, or N/A — fall through */ }
+  }catch(e){}
   return null;
 }
 
@@ -567,7 +563,6 @@ async function fetchMarketData(silent=false){
 
   let kursOld = S.kurs, kursNew = null, upS = [], failS = [], src = "scrape";
 
-  // 0) PRIMARY: GOOGLEFINANCE through your own Google Sheet
   const sheet = await fetchSheetPrices();
   const handled = {};
   if(sheet){
@@ -584,13 +579,11 @@ async function fetchMarketData(silent=false){
     });
   }
 
-  // 1) Exchange rate fallback (only if sheet didn't give one)
   if(kursNew === null){
     const nk = await fetchKurs();
     if(nk && nk > 0){ kursNew = nk; if(nk !== S.kurs) S.kurs = nk; }
   }
 
-  // 2) Per-ticker scrape ONLY for holdings the sheet couldn't price
   for(const h of S.holdings){
     if(handled[h.id]) continue;
     try{
@@ -604,7 +597,6 @@ async function fetchMarketData(silent=false){
     }catch(e){ failS.push(h.ticker); }
   }
 
-  // 3) Honest result
   const stamp = new Date().toLocaleString("en-GB",{day:"2-digit",month:"short",hour:"2-digit",minute:"2-digit"});
   S.priceLog = {
     at: stamp,
@@ -669,12 +661,12 @@ function toggleViewCcy(){ S.viewCcy=S.viewCcy==='IDR'?'JPY':'IDR';persist();rend
 
 function render(){
   document.getElementById("fab").style.display=(S.tab==="ledger")?"flex":"none";
-  let html=`<header><div class="brand"><button class="mk" onclick="toggleViewCcy()" title="Ganti mata uang">${S.viewCcy==='IDR'?'Rp':'¥'}</button><h1>Buku Kas</h1></div><span class="pill on" id="savePill">saved</span></header>`;
+  let html=`<header><div class="brand"><button class="mk" onclick="toggleViewCcy()" title="Ganti mata uang">${S.viewCcy==='IDR'?'Rp':'¥'}</button><h1>Buku Kas</h1></div><span class="pill on" id="savePill">E2EE synced ✓</span></header>`;
   if(S.tab==="home")html+=viewHome();
   else if(S.tab==="ledger")html+=viewLedger();
   else if(S.tab==="invest")html+=viewInvest();
   else html+=viewStats();
-  html+=`<p class="note">${S.updated?"Saved "+new Date(S.updated).toLocaleDateString():"Not saved"} · cloud synced</p>`;
+  html+=`<p class="note">${S.updated?"Saved "+new Date(S.updated).toLocaleDateString():"Not saved"} · cloud E2EE synced</p>`;
   document.getElementById("app").innerHTML=html;
   const nav=document.getElementById("nav");nav.style.display="flex";
   nav.innerHTML=[["home","◎","Home"],["ledger","▤","Ledger"],["invest","▰","Invest"],["stats","◔","Stats"]]
@@ -839,10 +831,6 @@ function viewInvest(){
         <button class="fb" style="background:var(--teal);color:#fff;border-color:var(--teal)" onclick="fetchMarketData(false)">⤓ Auto-fetch semua</button>
         <button class="fb" onclick="openPrices()">✎ Update manual</button>
       </div>
-      <p style="font-size:10.5px;color:var(--faint);line-height:1.6;margin-top:10px;text-align:center">
-        Saham IDX kecil (BRMS/CGAS) sering gagal di auto-fetch.
-        Cara paling andal: buka Stockbit/IPOT, ketuk <b>Update manual</b>, salin harga sekali.
-      </p>
     </div>
   </div>
 
@@ -891,10 +879,6 @@ function viewInvest(){
   </div>`;
 }
 
-/* ===== bulk price-update sheet ===== */
-// Uniq ticker list so opening broker pages doesn't duplicate (BRMS held twice)
-function uniqTickers(){ return [...new Set(S.holdings.map(h=>h.ticker.toUpperCase()))]; }
-
 function openPrices(){
   const rows = S.holdings.map(h=>{
     const sym = h.ticker.toUpperCase().replace('.JK','');
@@ -913,10 +897,6 @@ function openPrices(){
 
   document.getElementById("sheet").innerHTML=`<div class="grip"></div>
   <h2 style="font-family:'Bricolage Grotesque';font-weight:800;font-size:18px;margin-bottom:4px">Update Harga Saham</h2>
-  <p style="font-size:12px;color:var(--muted);margin-bottom:12px;line-height:1.55">
-    <b style="color:var(--ink)">Cara andal (15 detik):</b> ketuk <b style="color:var(--blue)">↗ TICKER</b> untuk buka harga di Stockbit, lihat angkanya, ketik di kolom, Simpan.<br>
-    <span style="color:var(--faint)">⤓ = coba auto-fetch (sering gagal untuk saham IDX kecil — itu wajar).</span>
-  </p>
   <div class="panel" style="margin-top:0"><div style="padding:4px 14px">${rows}</div></div>
   <div class="field" style="margin-top:14px">
     <label>Kurs · 1 ¥ = ? Rp</label>
@@ -926,17 +906,7 @@ function openPrices(){
     <button onclick="fetchAllRows()">⤓ Coba auto semua</button>
     <button onclick="closeOv()">Batal</button>
     <button class="save" onclick="savePrices()">Simpan</button>
-  </div>
-  <details style="margin-top:12px" open><summary>⚙ AKTIFKAN AUTO-FETCH via GOOGLEFINANCE (sekali setup)</summary>
-    <div style="background:var(--card2);border:1px solid var(--line);border-radius:12px;padding:14px;font-size:11.5px;color:var(--muted);line-height:1.7">
-      Cara terbaik: pakai <b>=GOOGLEFINANCE</b> di Google Sheet Anda sendiri. Berjalan di server Google — tanpa CORS, tanpa proxy publik.<br><br>
-      1. Buka <b>script.google.com</b> → proyek Buku Kas Anda.<br>
-      2. <b>Hapus semua kode lama</b>, ganti dengan isi file <code>AppsScript-Code.gs</code> yang diberikan.<br>
-      3. <b>Deploy → Manage deployments → Edit (pensil) → Version: New version → Deploy.</b> URL <code>/exec</code> tetap sama.<br>
-      4. Selesai. App otomatis pakai rute ini. Saham yang GOOGLEFINANCE tidak bisa harga (sering BRMS/CGAS/AADI) akan tetap pakai nilai manual Anda — tidak ditimpa nol.<br><br>
-      <span style="color:var(--faint)">Tip: di Apps Script, jalankan fungsi <code>testPrices</code> sekali lalu lihat Execution log — itu menunjukkan ticker mana yang perlu manual.</span>
-    </div>
-  </details>`;
+  </div>`;
   document.getElementById("ov").classList.add("show");
 }
 
@@ -954,7 +924,6 @@ async function fetchRow(id){
 async function fetchAllRows(){
   toast("🔄 Mencoba semua…");
   for(const h of S.holdings){ await fetchRow(h.id); }
-  // also kurs
   const nk=await fetchKurs(); if(nk&&el("pkurs")) el("pkurs").value=nk;
   toast("Selesai — periksa lalu Simpan");
 }
@@ -1220,16 +1189,56 @@ function exportCSV(){const L=["BUKU KAS,"+new Date().toLocaleString(),"","KEKAYA
     let i=1;ord(k).forEach(t=>L.push([i++,t.date,'"'+(t.desc||"")+'"',t.dir==="in"?t.amt:"",t.dir==="out"?t.amt:"",Math.round(t._bal||0),t.cat].join(",")));
     L.push("Totals,In,"+c.inT+",Out,"+c.outT+",End,"+Math.round(c.bal));});S.cur=sv;
   dl("buku-kas.csv","text/csv",L.join("\n"));}
+
+// Exporting JSON will now export DECRYPTED data so you have a readable backup file
 function exportJSON(){dl("buku-kas-backup.json","application/json",JSON.stringify(S,null,2));}
+
 function dl(n,t,d){const b=new Blob([d],{type:t}),url=URL.createObjectURL(b),a=document.createElement("a");a.href=url;a.download=n;a.click();setTimeout(()=>URL.revokeObjectURL(url),800);toast("Downloaded "+n);}
 function resetAll(){if(!confirm("Erase everything and restore your seeded situation?"))return;S=DEFAULTS();persist();render();toast("Reset");}
 
+/* ===== APP BOOTSTRAP (Fetch -> PIN -> Decrypt -> Start) ===== */
 (async function(){
-  await load();
-  render();
-  const p=el("savePill");if(p){p.textContent="saved";p.classList.add("on");}
-  // Auto-fetch in background on app start silently
-  fetchMarketData(true);
+  rawCipher = await STORE.get(KEY);
+
+  const pinTitle = document.getElementById("pinTitle");
+  const pinSub = document.getElementById("pinSub");
+  const pinMsg = document.getElementById("pinMsg");
+
+  // Determine if it's a completely new user, or if they have unencrypted data in the cloud
+  if (!rawCipher || rawCipher === "{}" || rawCipher.length < 10) {
+    isNewUser = true;
+    document.getElementById("pinScreen").classList.remove("hidden");
+    pinTitle.textContent = "Setup Keamanan";
+    pinSub.textContent = "Buat 6-digit PIN baru untuk mengenkripsi database Anda.";
+    pinMsg.textContent = "PIN ini tidak bisa di-reset. Jangan sampai lupa!";
+    pinMsg.style.color = "var(--out)";
+  } 
+  else if (rawCipher.startsWith("{") && rawCipher.length > 20) {
+    // Migration: Cloud has data, but it's not encrypted yet (from previous version)
+    isNewUser = true;
+    isUnencryptedMigration = true;
+    try { S = JSON.parse(rawCipher); S.viewCcy = S.viewCcy || "JPY"; } catch(e) { S = DEFAULTS(); }
+    
+    document.getElementById("pinScreen").classList.remove("hidden");
+    pinTitle.textContent = "Amankan Data";
+    pinSub.textContent = "Data lama belum terenkripsi. Buat 6-digit PIN untuk menguncinya sekarang.";
+    pinMsg.textContent = "PIN ini tidak bisa di-reset. Jangan sampai lupa!";
+    pinMsg.style.color = "var(--out)";
+  } 
+  else {
+    // Normal Flow: Cloud has encrypted data
+    if (currentPin && currentPin.length >= 4) {
+       // Auto-unlock using saved pin
+       if (tryDecrypt(currentPin)) {
+          return startApp();
+       } else {
+          currentPin = "";
+          localStorage.removeItem("app_key");
+       }
+    }
+    // Show Unlock Screen
+    document.getElementById("pinScreen").classList.remove("hidden");
+  }
 })();
 </script>
 </body>
