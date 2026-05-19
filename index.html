@@ -759,6 +759,14 @@ function viewHome(){
 
 function viewLedger(){
   const c=calc(),tx=ord().reverse();
+  
+  // LOGIKA BARU: Persiapkan data untuk Grafik Donat
+  const catItems=Object.keys(c.cats).sort((a,b)=>c.cats[b]-c.cats[a]).map(k=>({
+    label: k,
+    val: c.cats[k],
+    color: COL[k] || '#8A8569'
+  }));
+
   return `
   <div class="monthbar">
     <button class="mbtn" onclick="shiftM(-1)">‹</button>
@@ -766,37 +774,47 @@ function viewLedger(){
     <button class="mbtn" onclick="shiftM(1)">›</button>
     <button class="madd" onclick="newMonth()">＋BLN</button>
   </div>
+  
   <div class="panel">
     <div class="sum-top"><div><div class="lbl">Saldo akhir</div><div class="bal">${disp(c.bal)}</div></div>
       <div class="io"><span class="i">▲ ${disp(c.inT,false)}</span><span class="o">▼ ${disp(c.outT,false)}</span></div></div>
-    <div style="padding:2px 12px 14px">
-      ${Object.keys(c.cats).length?Object.keys(c.cats).sort((a,b)=>c.cats[b]-c.cats[a]).map(k=>{
-        const v=c.cats[k],p=c.outT?v/c.outT*100:0;
-        return `<div style="display:flex;align-items:center;gap:10px;padding:8px 4px">
-          <span style="width:88px;font-size:12.5px;font-weight:500">${k}</span>
-          <span style="flex:1;height:7px;background:var(--card2);border-radius:5px;overflow:hidden"><i style="display:block;height:100%;width:${p.toFixed(0)}%;background:${COL[k]||'#8A8569'}"></i></span>
-          <span class="mono" style="font-size:12px;min-width:96px;text-align:right">${disp(v,false)} <span style="color:var(--faint);font-size:10px">${p.toFixed(0)}%</span></span></div>`;
-      }).join(""):`<div class="empty" style="padding:14px">No spending yet — tap ＋</div>`}
+    
+    <div style="display:flex;align-items:center;gap:14px;padding:12px 16px 20px">
+      <div style="flex:0 0 auto">${donut(catItems.length ? catItems : [{label:"–",val:1,color:"#E2DBC4"}], 120)}</div>
+      <div style="flex:1; display:flex; flex-direction:column; gap:8px;">
+        ${catItems.length ? catItems.map(it=>`
+          <div style="display:flex; align-items:center; justify-content:space-between; font-size:12px">
+            <div style="display:flex; align-items:center; gap:6px;">
+              <span class="dot" style="background:${it.color}"></span>
+              <span style="font-weight:600">${it.label}</span>
+            </div>
+            <div class="mono" style="text-align:right">
+              ${disp(it.val, false)} <span style="color:var(--faint); font-size:10px; display:inline-block; width:28px; text-align:right">${c.outT?(it.val/c.outT*100).toFixed(0):0}%</span>
+            </div>
+          </div>
+        `).join("") : '<div class="empty" style="padding:0;text-align:left;font-size:12px">Belum ada pengeluaran</div>'}
+      </div>
     </div>
   </div>
+
   <div class="panel">
     <div class="ph"><h2>Entries</h2><span class="lbl">${MO().tx.length}</span></div>
     ${tx.length?tx.map(t=>{
       const d=new Date(t.date);
       const acc = t.accId ? S.accounts.find(a=>a.id===t.accId) : null;
       const acc2 = t.accId2 ? S.accounts.find(a=>a.id===t.accId2) : null;
-      let dtL = ``;
+      let dtL = \`\`;
       if(t.dir==="tf"){
-         dtL = `<span class="tg" style="margin-left:5px;background:#E2DBC4">${acc?esc(acc.name):'?'} ➔ ${acc2?esc(acc2.name):'?'}</span>`;
-         if(t.tfFee) dtL += ` <span class="tg" style="color:var(--out)">Fee ${t.tfFee}</span>`;
+         dtL = \`<span class="tg" style="margin-left:5px;background:#E2DBC4">\${acc?esc(acc.name):'?'} ➔ \${acc2?esc(acc2.name):'?'}</span>\`;
+         if(t.tfFee) dtL += \` <span class="tg" style="color:var(--out)">Fee \${t.tfFee}</span>\`;
       } else {
-         dtL = acc?`<span class="tg" style="margin-left:5px;background:#E2DBC4">${esc(acc.name)}</span>`:'';
+         dtL = acc?\`<span class="tg" style="margin-left:5px;background:#E2DBC4">\${esc(acc.name)}</span>\`:'';
       }
-      return `<div class="tx" onclick="openTx('${t.id}')">
-      <div class="dt">${monthShort(t.date.slice(0,7))}<b>${d.getUTCDate()}</b></div>
-      <div class="mid"><div class="ds">${esc(t.desc)||"—"}</div><span class="tg">${t.cat}</span>${dtL}</div>
-      <div class="rt"><div class="a ${t.dir==='in'?'amt-in':t.dir==='out'?'amt-out':'amt-tf'}">${t.dir==='in'?'+':t.dir==='out'?'−':'⇋'}${disp(t.amt,false)}</div><div class="b">${disp(t._bal,false)}</div></div></div>`;}).join("")
-      :`<div class="empty">Empty month. Carry-over: <b>${disp(MO().start||0)}</b><br><br>Tap ＋ to add a transaction.</div>`}
+      return \`<div class="tx" onclick="openTx('\${t.id}')">
+      <div class="dt">\${monthShort(t.date.slice(0,7))}<b>\${d.getUTCDate()}</b></div>
+      <div class="mid"><div class="ds">\${esc(t.desc)||"—"}</div><span class="tg">\${t.cat}</span>\${dtL}</div>
+      <div class="rt"><div class="a \${t.dir==='in'?'amt-in':t.dir==='out'?'amt-out':'amt-tf'}">\${t.dir==='in'?'+':t.dir==='out'?'−':'⇋'}\${disp(t.amt,false)}</div><div class="b">\${disp(t._bal,false)}</div></div></div>\`;}).join("")
+      :\`<div class="empty">Empty month. Carry-over: <b>\${disp(MO().start||0)}</b><br><br>Tap ＋ to add a transaction.</div>\`}
     <div class="row" style="border-top:1px solid var(--line2)"><span class="lbl f1">Saldo bulan lalu (carry)</span>
       <input class="vv" type="number" inputmode="numeric" value="${MO().start||0}" onchange="MO().start=parseFloat(this.value)||0;persist();render()"></div>
   </div>`;
