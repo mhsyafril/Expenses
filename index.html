@@ -263,22 +263,60 @@ let rawCipher = null;
 let isNewUser = false;
 let isUnencryptedMigration = false;
 
+// Wrapper IndexedDB untuk melewati limit 5MB LocalStorage
+const IDB = {
+  db: null,
+  init: function() {
+    return new Promise((resolve) => {
+      const req = indexedDB.open("BukuKasDB", 1);
+      req.onupgradeneeded = e => e.target.result.createObjectStore("store");
+      req.onsuccess = e => { IDB.db = e.target.result; resolve(); };
+      req.onerror = () => resolve();
+    });
+  },
+  get: function(k) {
+    return new Promise((resolve) => {
+      if (!IDB.db) return resolve(localStorage.getItem(k)); 
+      const tx = IDB.db.transaction("store", "readonly");
+      const req = tx.objectStore("store").get(k);
+      req.onsuccess = e => resolve(e.target.result || localStorage.getItem(k));
+      req.onerror = () => resolve(localStorage.getItem(k));
+    });
+  },
+  set: function(k, v) {
+    return new Promise((resolve) => {
+      localStorage.removeItem(k); // Hapus sisa cache lama agar LocalStorage lega
+      if (!IDB.db) return resolve();
+      const tx = IDB.db.transaction("store", "readwrite");
+      tx.objectStore("store").put(v, k);
+      tx.oncomplete = () => resolve();
+      tx.onerror = () => resolve();
+    });
+  }
+};
+
 const STORE = {
   get: async (k) => {
     try {
       const res = await fetch(API_URL);
       const text = await res.text();
-      return text && text.length > 2 ? text : null;
+      // Pastikan ada data, lalu simpan ke IndexedDB agar bisa diakses saat offline
+      if (text && text.length > 2) {
+        await IDB.set(k, text); 
+        return text;
+      }
+      return null;
     } catch(e) {
-      return localStorage.getItem(k);
+      // Jika offline/gagal fetch, ambil cache dari IndexedDB
+      return await IDB.get(k); 
     }
   },
   set: async (k, v) => {
     try {
+      await IDB.set(k, v); // Simpan ke storage HP (IndexedDB)
       await fetch(API_URL, { method: "POST", body: v, headers: { "Content-Type": "text/plain" }});
-      localStorage.setItem(k, v);
     } catch(e) {
-      localStorage.setItem(k, v);
+      console.log("Offline mode - Tersimpan lokal, sinkronisasi cloud tertunda.");
     }
   }
 };
@@ -1247,7 +1285,9 @@ function gantiPin() {
   }
 }
 /* ===== APP BOOTSTRAP (Fetch -> PIN -> Decrypt -> Start) ===== */
+/* ===== APP BOOTSTRAP (Fetch -> PIN -> Decrypt -> Start) ===== */
 (async function(){
+  await IDB.init(); // Wajib ditambahkan agar database lokal siap
   rawCipher = await STORE.get(KEY);
 
   const pinTitle = document.getElementById("pinTitle");
