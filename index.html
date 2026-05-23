@@ -394,13 +394,47 @@ const IN_CATS=["Income","Saham","Other"];
 const TF_CATS=["Transfer"];
 const COL={"Groceries":"#1F5C56","Eating-Out":"#B5613A","Shopping":"#7C5BAE","Utilities":"#C7913B","Saham":"#3F7DB0","Other":"#8A8569","Income":"#2E7D5B","Transfer":"#3F7DB0"};
 const QUICK=[
-  {l:"Tsuruha",d:"Tsuruha",c:"Groceries",dir:"out"},{l:"Morinaga",d:"Morinaga",c:"Groceries",dir:"out"},
-  {l:"Onigiri",d:"Onigiri",c:"Eating-Out",dir:"out"},{l:"Apartemen",d:"Apartemen",c:"Utilities",dir:"out",a:26000},
-  {l:"Gas",d:"Gas",c:"Utilities",dir:"out",a:5000},{l:"Air",d:"Air",c:"Utilities",dir:"out"},
-  {l:"Listrik",d:"Listrik",c:"Utilities",dir:"out"},{l:"iPhone",d:"iPhone",c:"Utilities",dir:"out",a:5272},
-  {l:"Data",d:"Data Internet",c:"Utilities",dir:"out",a:1000},{l:"Asuransi",d:"Asuransi kesehatan",c:"Utilities",dir:"out",a:2500},
-  {l:"Mext ↓",d:"Mext",c:"Income",dir:"in",a:145000},{l:"Baito ↓",d:"Baito",c:"Income",dir:"in"},
-  {l:"Tarik ATM",d:"Tarik tunai Yuchou",c:"Transfer",dir:"tf"},{l:"Topup Paypay",d:"Isi Paypay",c:"Transfer",dir:"tf"},
+  // === 1. GROCERIES ===
+  {l:"Gyomu", d:"Gyomu Super", c:"Groceries", dir:"out"},
+  {l:"Direx", d:"Direx", c:"Groceries", dir:"out"},
+  {l:"YouMe", d:"YouMe Mart", c:"Groceries", dir:"out"},
+  {l:"Aeon", d:"AEON", c:"Groceries", dir:"out"},
+  {l:"Cosmos", d:"Cosmos", c:"Groceries", dir:"out"},
+  {l:"Mori", d:"Drugstore Mori", c:"Groceries", dir:"out"},
+  {l:"Morinaga", d:"Morinaga", c:"Groceries", dir:"out"},
+  {l:"Good Day", d:"Good Day", c:"Groceries", dir:"out"},
+  {l:"Daiso", d:"Daiso", c:"Groceries", dir:"out"},
+  {l:"Donki", d:"Don Quijote", c:"Groceries", dir:"out"},
+  {l:"Tsuruha", d:"Tsuruha", c:"Groceries", dir:"out"}, // Dipertahankan dari kode lama
+
+  // === 2. EATING OUT ===
+  {l:"7-Eleven", d:"7-Eleven", c:"Eating-Out", dir:"out"},
+  {l:"Famima", d:"FamilyMart", c:"Eating-Out", dir:"out"},
+  {l:"Lawson", d:"Lawson", c:"Eating-Out", dir:"out"},
+  {l:"Hamasushi", d:"Hamasushi", c:"Eating-Out", dir:"out"},
+  {l:"Ebizhou", d:"Ebizhou", c:"Eating-Out", dir:"out"},
+  {l:"CurryHouse", d:"Curry House", c:"Eating-Out", dir:"out"},
+  {l:"Kasasagi", d:"Kasasagi", c:"Eating-Out", dir:"out"},
+  {l:"Yayoi", d:"Yayoi-ken", c:"Eating-Out", dir:"out"},
+  {l:"Hanasansho", d:"Hanasanshokudo", c:"Eating-Out", dir:"out"},
+  {l:"Jajan", d:"Jajan", c:"Eating-Out", dir:"out"}, // Dipertahankan dari kode lama
+
+  // === 3. UTILITIES (Dipertahankan dari kode lama) ===
+  {l:"Apartemen", d:"Apartemen", c:"Utilities", dir:"out", a:26000},
+  {l:"Gas", d:"Gas", c:"Utilities", dir:"out", a:5000},
+  {l:"Air", d:"Air", c:"Utilities", dir:"out", a:4950},
+  {l:"Listrik", d:"Listrik", c:"Utilities", dir:"out"},
+  {l:"iPhone", d:"iPhone", c:"Utilities", dir:"out", a:5272},
+  {l:"iCloud", d:"iCloud", c:"Utilities", dir:"out", a:150},
+  {l:"Youtube", d:"Youtube Premium", c:"Utilities", dir:"out", a:570},
+  {l:"Data", d:"Data Internet", c:"Utilities", dir:"out", a:994},
+  {l:"Asuransi", d:"Asuransi kesehatan", c:"Utilities", dir:"out", a:2500},
+
+  // === 4. INCOME & TRANSFER (Dipertahankan dari kode lama) ===
+  {l:"Mext ↓", d:"Mext", c:"Income", dir:"in", a:145000},
+  {l:"Baito ↓", d:"Baito", c:"Income", dir:"in"},
+  {l:"Tarik ATM", d:"Tarik tunai Yuchou", c:"Transfer", dir:"tf"},
+  {l:"Topup Paypay", d:"Isi Paypay", c:"Transfer", dir:"tf"},
 ];
 const MK=(y,m)=>y+"-"+String(m).padStart(2,"0");
 const u=()=>Math.random().toString(36).slice(2,9);
